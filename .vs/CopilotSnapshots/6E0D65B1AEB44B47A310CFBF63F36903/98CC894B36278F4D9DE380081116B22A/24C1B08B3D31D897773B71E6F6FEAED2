@@ -1,0 +1,142 @@
+﻿<Window x:Class="Projeto_Integrador_SENAC.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:conv="clr-namespace:Projeto_Integrador_SENAC.Converters"
+        Title="Sistema da Cantina"
+        Height="800"
+        Width="1200">
+
+    <Window.Resources>
+        <conv:MoneyConverter x:Key="MoneyConverter"/>
+        <conv:TextMoneyConverter x:Key="TextMoneyConverter"/>
+
+        <Style x:Key="CampoTexto" TargetType="TextBox">
+            <Setter Property="Margin" Value="0,5"/>
+        </Style>
+
+        <Style x:Key="BotaoPadrao" TargetType="Button">
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+
+        <Style x:Key="BotaoQuantidade" TargetType="Button" BasedOn="{StaticResource BotaoPadrao}">
+            <Setter Property="Width" Value="50"/>
+        </Style>
+
+        <Style x:Key="LabelCampo" TargetType="TextBlock">
+            <Setter Property="Margin" Value="0,5,0,0"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="10">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+
+                <TextBlock Text="Controle da Cantina"
+                           FontSize="22"
+                           FontWeight="Bold"
+                           Margin="0,0,0,10"/>
+
+                <Button Content="Adicionar itens ao Cardápio"
+                        Command="{Binding AbrirCadastroCommand}"
+                        Margin="0,5"/>
+
+                <DataGrid ItemsSource="{Binding Produtos}"
+                          SelectedItem="{Binding ProdutoSelecionado, Mode=TwoWay}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          Height="250"
+                          Margin="0,10">
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Nome"
+                                            Binding="{Binding Nome}" />
+
+                        <DataGridTextColumn Header="Quantidade"
+                                            Binding="{Binding Quantidade}" />
+
+                        <DataGridTextColumn Header="Preço"
+                                            Binding="{Binding Preco, StringFormat=C}" />
+
+                        <DataGridTextColumn Header="Desconto (%)"
+                                            Binding="{Binding Desconto}" />
+
+                        <DataGridTextColumn Header="Desc. R$"
+                                            Binding="{Binding DescontoValor, StringFormat=C}" />
+
+                        <DataGridTextColumn Header="Preço Promoção"
+                                            Binding="{Binding PrecoPromocional, StringFormat=C, Mode=OneWay}"
+                                            IsReadOnly="True" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <Button Content="+1"
+                            Command="{Binding MaisCommand}"
+                            Style="{StaticResource BotaoQuantidade}"/>
+
+                    <Button Content="+5"
+                            Command="{Binding Mais5Command}"
+                            Style="{StaticResource BotaoQuantidade}"/>
+
+                    <Button Content="+10"
+                            Command="{Binding Mais10Command}"
+                            Style="{StaticResource BotaoQuantidade}"/>
+
+                    <Button Content="-"
+                            Command="{Binding MenosCommand}"
+                            Style="{StaticResource BotaoQuantidade}"/>
+
+                    <TextBlock Text="Qtd:"
+                               VerticalAlignment="Center"
+                               Margin="10,0,5,0"/>
+
+                    <TextBox Text="{Binding QuantidadeAdicionar,
+                                            UpdateSourceTrigger=PropertyChanged,
+                                            TargetNullValue=0,
+                                            FallbackValue=0}"
+                             Width="80"
+                             Margin="5"/>
+
+                    <Button Content="Adicionar"
+                            Command="{Binding AdicionarQuantidadeCommand}"
+                            Style="{StaticResource BotaoPadrao}"/>
+                </StackPanel>
+
+                <TextBlock Text="Desconto (%)"
+                           Style="{StaticResource LabelCampo}"/>
+
+                <TextBox Text="{Binding DescontoTexto, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource CampoTexto}"/>
+
+                <TextBlock Text="Desconto (R$)"
+                           Style="{StaticResource LabelCampo}"/>
+
+                <TextBox Text="{Binding DescontoValorTexto, Converter={StaticResource TextMoneyConverter}, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource CampoTexto}"/>
+
+                <Button Content="Aplicar Desconto"
+                        Command="{Binding AplicarDescontoCommand}"
+                        Style="{StaticResource BotaoPadrao}"/>
+
+                <Button Content="Aplicar desconto em todos"
+                        Command="{Binding AplicarDescontoTodosCommand}"
+                        Style="{StaticResource BotaoPadrao}"/>
+
+                <Button Content="Zerar desconto"
+                        Command="{Binding ZerarDescontoCommand}"
+                        Style="{StaticResource BotaoPadrao}"/>
+
+                <Button Content="Zerar desconto de todos"
+                        Command="{Binding ZerarDescontoTodosCommand}"
+                        Style="{StaticResource BotaoPadrao}"/>
+
+
+                <Button Content="Enviar Promoções no WhatsApp"
+                        Command="{Binding WhatsAppCommand}"
+                        Height="35"
+                        Margin="0,5"/>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>

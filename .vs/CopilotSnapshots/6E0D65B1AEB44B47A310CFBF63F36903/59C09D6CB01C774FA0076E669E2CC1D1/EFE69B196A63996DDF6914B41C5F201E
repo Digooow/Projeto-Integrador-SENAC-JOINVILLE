@@ -1,0 +1,215 @@
+﻿using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Windows;
+using System.Windows.Data;
+using System.Windows.Input;
+using Projeto_Integrador_SENAC.Models;
+using Projeto_Integrador_SENAC.Services;
+
+namespace Projeto_Integrador_SENAC.ViewModels
+{
+    public class CadastroViewModel : BaseViewModel
+    {
+        private readonly IProdutoService _service;
+        private readonly ICollectionView _produtosView;
+
+        private Produto? _produtoSelecionado;
+        private Produto? _produtoEdicao;
+        private string _busca = "";
+
+        public ObservableCollection<Produto> Produtos { get; }
+
+        public Produto? ProdutoSelecionado
+        {
+            get => _produtoSelecionado;
+            set
+            {
+                _produtoSelecionado = value;
+                OnPropertyChanged(nameof(ProdutoSelecionado));
+
+                ProdutoEdicao = value == null ? new Produto() : CriarCopia(value);
+            }
+        }
+
+        public Produto? ProdutoEdicao
+        {
+            get => _produtoEdicao;
+            set
+            {
+                _produtoEdicao = value;
+                OnPropertyChanged(nameof(ProdutoEdicao));
+                OnPropertyChanged(nameof(QuantidadeTexto));
+            }
+        }
+
+        public string QuantidadeTexto
+        {
+            get => ProdutoEdicao?.Quantidade.ToString() ?? "";
+            set
+            {
+                if (ProdutoEdicao == null)
+                    return;
+
+                var apenasNumeros = new string(value.Where(char.IsDigit).ToArray());
+
+                ProdutoEdicao.Quantidade = int.TryParse(apenasNumeros, out var quantidade)
+                    ? quantidade
+                    : 0;
+
+                OnPropertyChanged(nameof(QuantidadeTexto));
+            }
+        }
+
+        public string Busca
+        {
+            get => _busca;
+            set
+            {
+                _busca = value;
+                OnPropertyChanged(nameof(Busca));
+                _produtosView.Refresh();
+            }
+        }
+
+        public ICommand SalvarCommand { get; }
+        public ICommand ExcluirCommand { get; }
+        public ICommand NovoCommand { get; }
+
+        public CadastroViewModel(IProdutoService service)
+        {
+            _service = service;
+            Produtos = _service.ObterTodos();
+
+            _produtosView = CollectionViewSource.GetDefaultView(Produtos);
+            _produtosView.Filter = FiltrarProduto;
+
+            SalvarCommand = new RelayCommand(Salvar);
+            ExcluirCommand = new RelayCommand(() => Excluir(ProdutoSelecionado),
+                                              () => ProdutoSelecionado != null);
+            NovoCommand = new RelayCommand(Novo);
+
+            Novo();
+        }
+
+        private void Novo()
+        {
+            ProdutoSelecionado = null;
+            ProdutoEdicao = new Produto();
+        }
+
+        private void Salvar()
+        {
+            if (!ProdutoEdicaoValido())
+                return;
+
+            if (ProdutoSelecionado == null || !Produtos.Contains(ProdutoSelecionado))
+                AdicionarProduto();
+            else
+                AtualizarProdutoSelecionado();
+
+            SalvarEAtualizarTela();
+
+            MessageBox.Show("Salvo com sucesso!");
+        }
+
+        private void Excluir(Produto? produto)
+        {
+            if (produto == null || !ConfirmarExclusao(produto))
+                return;
+
+            int index = Produtos.IndexOf(produto);
+
+            _service.Remover(produto);
+
+            SelecionarProdutoAposExclusao(index);
+            SalvarEAtualizarTela();
+
+            CommandManager.InvalidateRequerySuggested();
+        }
+
+        private void AdicionarProduto()
+        {
+            if (ProdutoEdicao == null)
+                return;
+
+            var novo = CriarCopia(ProdutoEdicao);
+
+            _service.Adicionar(novo);
+            ProdutoSelecionado = novo;
+        }
+
+        private void AtualizarProdutoSelecionado()
+        {
+            if (ProdutoSelecionado == null || ProdutoEdicao == null)
+                return;
+
+            ProdutoSelecionado.Nome = ProdutoEdicao.Nome;
+            ProdutoSelecionado.Preco = ProdutoEdicao.Preco;
+            ProdutoSelecionado.Quantidade = ProdutoEdicao.Quantidade;
+        }
+
+        private void SelecionarProdutoAposExclusao(int index)
+        {
+            if (Produtos.Count == 0)
+            {
+                Novo();
+                return;
+            }
+
+            if (index >= Produtos.Count)
+                index = Produtos.Count - 1;
+
+            ProdutoSelecionado = Produtos[index];
+        }
+
+        private bool ProdutoEdicaoValido()
+        {
+            return ProdutoEdicao != null &&
+                   !string.IsNullOrWhiteSpace(ProdutoEdicao.Nome) &&
+                   ProdutoEdicao.Preco > 0;
+        }
+
+        private bool ConfirmarExclusao(Produto produto)
+        {
+            var resultado = MessageBox.Show(
+                $"Deseja excluir o produto '{produto.Nome}'?",
+                "Confirmar exclusão",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            return resultado == MessageBoxResult.Yes;
+        }
+
+        private Produto CriarCopia(Produto produto)
+        {
+            return new Produto
+            {
+                Nome = produto.Nome,
+                Preco = produto.Preco,
+                Quantidade = produto.Quantidade
+            };
+        }
+
+        private bool FiltrarProduto(object item)
+        {
+            return item is Produto produto &&
+                   (string.IsNullOrWhiteSpace(Busca) ||
+                    produto.Nome.Contains(Busca, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private void SalvarEAtualizarTela()
+        {
+            _service.Atualizar();
+            _produtosView.Refresh();
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected void OnPropertyChanged(string nome)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nome));
+        }
+    }
+}
