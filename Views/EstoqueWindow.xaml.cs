@@ -1,0 +1,21 @@
+﻿using Projeto_Integrador_SENAC;
+using System.Collections.Generic;
+using System.Windows;
+
+using Projeto_Integrador_SENAC.Models;
+using Projeto_Integrador_SENAC.Services;
+using Projeto_Integrador_SENAC.ViewModels;
+
+namespace Projeto_Integrador_SENAC
+{
+
+    public partial class EstoqueWindow : Window
+    {
+        public EstoqueWindow(List<Produto> lista)
+        {
+            InitializeComponent();
+            DataContext = new EstoqueViewModel(lista);
+        }
+    }
+
+}

@@ -1,0 +1,64 @@
+﻿
+using Projeto_Integrador_SENAC.Models;
+using Projeto_Integrador_SENAC.Services;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Input;
+
+namespace Projeto_Integrador_SENAC.ViewModels
+{
+    public class EstoqueViewModel : BaseViewModel
+    {
+        private readonly IEstoqueService _estoqueService;
+
+        public ObservableCollection<Produto> Produtos { get; }
+
+    private Produto _produtoSelecionado;
+    public Produto ProdutoSelecionado
+    {
+        get => _produtoSelecionado;
+        set
+        {
+            _produtoSelecionado = value;
+            OnPropertyChanged(nameof(ProdutoSelecionado));
+        }
+    }
+
+    private int _quantidade;
+    public int Quantidade
+    {
+        get => _quantidade;
+        set
+        {
+            _quantidade = value;
+            OnPropertyChanged(nameof(Quantidade));
+        }
+    }
+
+    public ICommand VenderCommand { get; }
+    public ICommand AdicionarCommand { get; }
+
+    public EstoqueViewModel(List<Produto> lista)
+    {
+        _estoqueService = new EstoqueService();
+        Produtos = new ObservableCollection<Produto>(lista);
+
+        VenderCommand = new RelayCommand(Vender);
+        AdicionarCommand = new RelayCommand(Adicionar);
+    }
+
+    private void Vender()
+    {
+        if (ProdutoSelecionado == null) return;
+
+        _estoqueService.AlterarQuantidade(ProdutoSelecionado, -Quantidade);
+    }
+
+    private void Adicionar()
+    {
+        if (ProdutoSelecionado == null) return;
+
+        _estoqueService.AlterarQuantidade(ProdutoSelecionado, Quantidade);
+    }
+    }
+}
