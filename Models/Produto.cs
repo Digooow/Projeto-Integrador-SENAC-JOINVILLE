@@ -1,11 +1,16 @@
 ﻿using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Projeto_Integrador_SENAC.Models
 {
+    [Table("Produtos")]  // nome da tabela no banco
     public class Produto : INotifyPropertyChanged
     {
+        private int id;
         private string nome = "";
         private int quantidade;
         private decimal preco;
@@ -14,14 +19,28 @@ namespace Projeto_Integrador_SENAC.Models
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        // Chave primária (obrigatória para EF)
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id
+        {
+            get => id;
+            set
+            {
+                if (id == value) return;
+                id = value;
+                Notificar();
+            }
+        }
+
+        [Required]
+        [MaxLength(100)]
         public string Nome
         {
             get => nome;
             set
             {
-                if (nome == value)
-                    return;
-
+                if (nome == value) return;
                 nome = value;
                 Notificar();
             }
@@ -33,31 +52,23 @@ namespace Projeto_Integrador_SENAC.Models
             set
             {
                 value = Math.Max(0, value);
-
-                if (quantidade == value)
-                    return;
-
+                if (quantidade == value) return;
                 quantidade = value;
                 Notificar();
                 NotificarDependenciasDeCalculo();
             }
         }
 
+        [Column(TypeName = "decimal(10,2)")]
         public decimal Preco
         {
             get => preco;
             set
             {
                 value = Math.Max(0, value);
-
-                if (preco == value)
-                    return;
-
+                if (preco == value) return;
                 preco = value;
-
-                if (descontoValor > preco)
-                    descontoValor = preco;
-
+                if (descontoValor > preco) descontoValor = preco;
                 Notificar();
                 Notificar(nameof(DescontoValor));
                 NotificarDependenciasDeCalculo();
@@ -70,13 +81,9 @@ namespace Projeto_Integrador_SENAC.Models
             set
             {
                 value = Math.Min(100, Math.Max(0, value));
-
-                if (desconto == value)
-                    return;
-
+                if (desconto == value) return;
                 desconto = value;
                 descontoValor = 0;
-
                 Notificar();
                 Notificar(nameof(DescontoValor));
                 NotificarDependenciasDeCalculo();
@@ -90,32 +97,28 @@ namespace Projeto_Integrador_SENAC.Models
             {
                 value = Math.Max(0, value);
                 value = Math.Min(Preco, value);
-
-                if (descontoValor == value)
-                    return;
-
+                if (descontoValor == value) return;
                 descontoValor = value;
                 desconto = 0;
-
                 Notificar();
                 Notificar(nameof(Desconto));
                 NotificarDependenciasDeCalculo();
             }
         }
 
+        [NotMapped]  // Não cria coluna no banco
         public decimal PrecoPromocional => CalcularPrecoPromocional();
 
+        [NotMapped]  // Não cria coluna no banco
         public decimal Total => Quantidade * PrecoPromocional;
 
         private decimal CalcularPrecoPromocional()
         {
             decimal valor = Preco;
-
             if (Desconto > 0)
                 valor -= Preco * Desconto / 100;
             else if (DescontoValor > 0)
                 valor -= DescontoValor;
-
             return Math.Max(0, valor);
         }
 
