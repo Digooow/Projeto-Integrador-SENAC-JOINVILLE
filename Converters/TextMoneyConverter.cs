@@ -15,20 +15,25 @@ namespace Projeto_Integrador_SENAC.Converters
     {
         private const int CentavosPorReal = 100;
         private static readonly CultureInfo CulturaBrasil = new CultureInfo("pt-BR");
+        private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(100);
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            // O valor de entrada é a string digitada pelo usuário (ex: "150").
             if (value is string stringValue && !string.IsNullOrEmpty(stringValue))
             {
-                string apenasNumeros = Regex.Replace(stringValue, "[^0-9]", "");
+                string apenasNumeros = Regex.Replace(
+                    stringValue,
+                    "[^0-9]",
+                    "",
+                    RegexOptions.None,
+                    RegexTimeout
+                );
 
                 if (string.IsNullOrEmpty(apenasNumeros))
                     return "0,00";
 
                 if (decimal.TryParse(apenasNumeros, out decimal valorEmCentavos))
                 {
-                    // Converte centavos para reais e formata com duas casas decimais.
                     return (valorEmCentavos / CentavosPorReal).ToString("F2", CulturaBrasil);
                 }
             }
@@ -40,19 +45,21 @@ namespace Projeto_Integrador_SENAC.Converters
         {
             string texto = value?.ToString() ?? "0";
 
-            // Remove símbolos e espaços comuns.
             texto = texto.Replace("R$", "").Replace(" ", "").Trim();
 
             if (string.IsNullOrWhiteSpace(texto))
                 return "0";
 
-            // Extrai apenas os dígitos.
-            string apenasNumeros = Regex.Replace(texto, "[^0-9]", "");
+            string apenasNumeros = Regex.Replace(
+                texto,
+                "[^0-9]",
+                "",
+                RegexOptions.None,
+                RegexTimeout
+            );
 
-            // Tenta converter para decimal e, se bem-sucedido, aplica a regra da maquininha.
             if (!string.IsNullOrEmpty(apenasNumeros) && decimal.TryParse(apenasNumeros, out decimal valorEmCentavos))
             {
-                // Converte centavos para reais (divide por 100) e formata com duas casas.
                 return (valorEmCentavos / CentavosPorReal).ToString("F2", CulturaBrasil);
             }
 

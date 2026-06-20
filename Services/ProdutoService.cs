@@ -27,7 +27,7 @@ namespace Projeto_Integrador_SENAC.Services
                 return;
 
             if (string.IsNullOrWhiteSpace(produto.Nome))
-                throw new ArgumentException("Nome obrigatório", nameof(produto.Nome));
+                throw new ArgumentException("O nome do produto é obrigatório.", nameof(produto));
 
             _produtos.Add(produto);
             SalvarENotificar();
