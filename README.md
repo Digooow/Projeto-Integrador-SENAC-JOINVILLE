@@ -1,209 +1,268 @@
-🍽️ Sistema da Cantina
-https://img.shields.io/badge/.NET-10-blue?logo=dotnet&logoColor=white
-https://img.shields.io/badge/WPF-UI-purple?logo=windows&logoColor=white
-https://img.shields.io/badge/status-em%2520desenvolvimento-yellow
+# 🍽️ Sistema da Cantina
 
-Sistema desktop para gerenciamento de cantina com interface moderna, desenvolvido em C# com WPF seguindo os padrões MVVM e SOLID.
+<p align="center">
+  <img src="https://img.shields.io/badge/.NET-10-blue?logo=dotnet&logoColor=white" alt=".NET 10" />
+  <img src="https://img.shields.io/badge/WPF-UI-purple?logo=windows&logoColor=white" alt="WPF" />
+  <img src="https://img.shields.io/badge/status-em%20desenvolvimento-yellow" alt="Status" />
+  <img src="https://img.shields.io/badge/versão-1.0.0-blue" alt="Versão" />
+  <img src="https://img.shields.io/badge/testes-0%25-red" alt="Testes" />
+  <img src="https://img.shields.io/badge/coverage-0%25-red" alt="Cobertura" />
+  <img src="https://img.shields.io/badge/licença-MIT-green" alt="Licença" />
+  <img src="https://img.shields.io/badge/build-passing-brightgreen" alt="Build" />
+</p>
 
-📋 Sumário
-Visão Geral
+Sistema desktop para gerenciamento de cantinas e pequenos comércios, desenvolvido em C# com WPF seguindo os padrões **MVVM** e **SOLID**. Oferece controle completo de produtos, estoque e aplicação de descontos, com interface moderna e persistência local.
 
-Tecnologias
+---
 
-Funcionalidades
+## 📋 Índice
 
-Arquitetura
+- [Visão Geral](#visão-geral)
+- [Público-Alvo](#público-alvo)
+- [Tecnologias](#tecnologias)
+- [Funcionalidades](#funcionalidades)
+- [Capturas de Tela](#capturas-de-tela)
+- [Arquitetura](#arquitetura)
+- [Estrutura de Dados](#estrutura-de-dados)
+- [Pré-requisitos](#pré-requisitos)
+- [Como Executar](#como-executar)
+  - [Visual Studio](#visual-studio-recomendado)
+  - [Dotnet CLI](#dotnet-cli)
+- [Resolução de Problemas](#resolução-de-problemas)
+- [Estrutura do Projeto](#estrutura-do-projeto)
+- [Padrões e Boas Práticas](#padrões-e-boas-práticas)
+- [Roadmap](#roadmap)
+- [Contribuição](#contribuição)
+- [Licença](#licença)
+- [Equipe](#equipe)
+- [Agradecimentos](#agradecimentos)
 
-Como Executar
+---
 
-Visual Studio
+## 🎯 Visão Geral
 
-Dotnet CLI
+O **Sistema da Cantina** é uma aplicação desktop desenvolvida para simplificar o gerenciamento de produtos, estoque e descontos em estabelecimentos de pequeno e médio porte. Com uma interface intuitiva e responsiva, o sistema permite:
 
-Estrutura do Projeto
+- Cadastro e edição de produtos
+- Controle de estoque em tempo real
+- Aplicação de descontos percentuais ou em valor absoluto (R$)
+- Persistência local dos dados em arquivo (formato JSON)
 
-Padrões e Boas Práticas
+---
 
-Próximos Passos
+## 👥 Público-Alvo
 
-Contribuição
+- Donos de cantinas, lanchonetes, padarias e pequenos mercados.
+- Estudantes e desenvolvedores que desejam aprender WPF e MVVM.
+- Projetos acadêmicos que necessitam de um sistema de gestão simples.
 
-Licença
+---
 
-🎯 Visão Geral
-O Sistema da Cantina é uma aplicação desktop desenvolvida para simplificar o gerenciamento de produtos, estoque e aplicação de descontos em estabelecimentos comerciais de pequeno e médio porte.
+## 🛠 Tecnologias
 
-Com uma interface intuitiva e responsiva, o sistema permite:
+| Tecnologia | Versão | Finalidade |
+|------------|--------|------------|
+| .NET       | 10     | Framework principal |
+| WPF        | -      | Interface gráfica (XAML) |
+| C#         | 12     | Linguagem de programação |
+| MVVM       | -      | Padrão arquitetural ([saiba mais](https://docs.microsoft.com/pt-br/dotnet/architecture/maui/mvvm)) |
+| Data Binding| -     | Comunicação View-ViewModel |
 
-Cadastro e edição de produtos
+---
 
-Controle de estoque em tempo real
+## ✨ Funcionalidades
 
-Aplicação de descontos percentuais e em valor absoluto (R$)
+- ✅ **CRUD de Produtos** – Cadastro, listagem, edição e exclusão.
+- ✅ **Controle de Estoque** – Atualização automática da quantidade.
+- ✅ **Descontos Flexíveis**:
+  - Percentual (%) – Ex.: 10% de desconto.
+  - Valor Fixo (R$) – Ex.: R$ 5,00 de desconto.
+- ✅ **Persistência Local** – Dados salvos em arquivo (`produtos.json`).
+- ✅ **Interface Responsiva** – DataGrids com edição inline.
+- ✅ **Validação de Dados** – Prevenção de entradas inválidas.
+- ✅ **Conversores Personalizados** – Formatação monetária automática.
 
-Persistência local dos dados
+---
 
-🛠 Tecnologias
-Tecnologia	Versão	Finalidade
-.NET	10	Framework principal
-WPF	-	Interface gráfica (XAML)
-C#	12	Linguagem de programação
-MVVM	-	Padrão arquitetural
-Data Binding	-	Comunicação View-ViewModel
-✨ Funcionalidades
-✅ CRUD de Produtos – Cadastro, listagem, edição e exclusão
+## 🧱 Arquitetura
 
-✅ Controle de Estoque – Atualização automática de quantidade
+O projeto segue o padrão **MVVM (Model-View-ViewModel)** com separação clara de responsabilidades:
 
-✅ Descontos Flexíveis:
+| Camada | Componentes | Responsabilidade |
+|--------|-------------|------------------|
+| **Views (XAML)** | `MainWindow`, `CadastroWindow`, `EstoqueWindow` | Interface gráfica, interação com o usuário, exibição de dados. |
+| **ViewModels** | `MainViewModel`, `CadastroViewModel`, `EstoqueViewModel`, `BaseViewModel`, `RelayCommand` | Lógica de apresentação, estado da interface, comandos e bindings. |
+| **Services** | `ProdutoService`, `DescontoService`, `EstoqueService`, `StorageService` (implements `IStorage`) | Regras de negócio, persistência, cálculos de desconto e estoque. |
+| **Models** | `Produto` | Entidade de dados (propriedades: Id, Nome, Preço, QuantidadeEstoque, Categoria). |
+| **Converters** | `MoneyConverter`, `TextMoneyConverter` | Formatação e conversão de valores monetários para exibição e edição. |
 
-Percentual (%) – Ex: 10% de desconto
+### Serviços principais
 
-Valor Fixo (R
-)
-–
-E
-x
-:
-R
-)–Ex:R 5,00 de desconto
+- **ProdutoService**: operações CRUD e regras de negócio para produtos.
+- **EstoqueService**: gerencia a quantidade em estoque e validações.
+- **DescontoService**: aplica descontos percentuais ou fixos, calcula o valor final.
+- **StorageService**: responsável pela leitura/gravação do arquivo de dados (persistência).
 
-✅ Persistência Local – Dados salvos em arquivo (Storage)
+---
 
-✅ Interface Responsiva – DataGrids com edição inline
+## 📦 Estrutura de Dados
 
-✅ Validação de Dados – Prevenção de entradas inválidas
+Os produtos são persistidos em um arquivo JSON (`produtos.json`) com a seguinte estrutura:
 
-✅ Conversores Personalizados – Formatação monetária automática
+```json
+[
+  {
+    "Id": 1,
+    "Nome": "Coxinha",
+    "Preco": 6.50,
+    "QuantidadeEstoque": 10,
+    "Categoria": "Salgados"
+  },
+  {
+    "Id": 2,
+    "Nome": "Refrigerante 350ml",
+    "Preco": 4.00,
+    "QuantidadeEstoque": 25,
+    "Categoria": "Bebidas"
+  }
+]
+````
+O arquivo é criado automaticamente na primeira execução, na mesma pasta do executável.
 
-🧱 Arquitetura
-O projeto segue o padrão MVVM (Model-View-ViewModel) com separação clara de responsabilidades:
+---
 
-text
-┌─────────────────────────────────────────────────────────┐
-│                       VIEWS (XAML)                      │
-│  MainWindow │ CadastroWindow │ EstoqueWindow            │
-├─────────────────────────────────────────────────────────┤
-│                    VIEWMODELS                           │
-│  MainViewModel │ CadastroViewModel │ EstoqueViewModel   │
-│  BaseViewModel │ RelayCommand                           │
-├─────────────────────────────────────────────────────────┤
-│                     SERVICES                            │
-│  ProdutoService │ DescontoService │ EstoqueService      │
-│  StorageService │ IStorage                              │
-├─────────────────────────────────────────────────────────┤
-│                     MODELS                              │
-│  Produto                                               │
-├─────────────────────────────────────────────────────────┤
-│                   CONVERTERS                            │
-│  MoneyConverter │ TextMoneyConverter                    │
-└─────────────────────────────────────────────────────────┘
-🚀 Como Executar
-Visual Studio (Recomendado)
-Abra o arquivo Projeto-Integrador-SENAC.sln no Visual Studio 2022/2024/2026
+## 📋 Pré-requisitos
 
-Compile a solução: Ctrl + Shift + B
+Sistema Operacional: Windows 10 ou superior (WPF não é multiplataforma).
 
-Execute o projeto: F5
+.NET SDK 10.0 ou superior – Baixar aqui.
 
-Dotnet CLI
-powershell
-# Restaurar dependências
-dotnet restore
+Visual Studio 2022 (versão 17.8 ou superior) com a carga de trabalho Desenvolvimento para desktop .NET.
 
-# Compilar o projeto
-dotnet build
+(Opcional) Git para clonar o repositório.
 
-# Executar a aplicação
-dotnet run --project Projeto-Integrador-SENAC.csproj
-⚠️ Nota: A execução via CLI pode apresentar limitações no WPF. Recomenda-se o uso do Visual Studio para melhor experiência.
+---
 
-📁 Estrutura do Projeto
-text
+## 📁 Estrutura do Projeto
+
+````text
 Projeto-Integrador-SENAC/
 ├── Converters/
-│   ├── MoneyConverter.cs          # Converte decimal para formato monetário
-│   └── TextMoneyConverter.cs      # Converte string para decimal (edição)
+│   ├── MoneyConverter.cs          # Converte decimal para formato monetário (ex.: R$ 10,00)
+│   └── TextMoneyConverter.cs      # Converte string para decimal (edição no DataGrid)
 ├── Models/
-│   └── Produto.cs                 # Entidade principal
+│   └── Produto.cs                 # Entidade Produto (Id, Nome, Preço, Estoque, etc.)
 ├── Services/
 │   ├── DescontoService.cs         # Lógica de aplicação de descontos
 │   ├── EstoqueService.cs          # Gerenciamento de quantidades
-│   ├── ProdutoService.cs          # Operações CRUD
-│   └── StorageService.cs          # Persistência em arquivo
+│   ├── ProdutoService.cs          # Operações CRUD e regras de negócio
+│   └── StorageService.cs          # Persistência em arquivo (JSON)
 ├── ViewModels/
-│   ├── BaseViewModel.cs           # Base com INotifyPropertyChanged
-│   ├── CadastroViewModel.cs       # Lógica da tela de cadastro
+│   ├── BaseViewModel.cs           # Classe base com INotifyPropertyChanged
+│   ├── CadastroViewModel.cs       # Lógica da tela de cadastro/edição
 │   ├── EstoqueViewModel.cs        # Lógica da tela de estoque
-│   ├── MainViewModel.cs           # ViewModel principal
-│   └── RelayCommand.cs            # Implementação de ICommand
+│   ├── MainViewModel.cs           # ViewModel principal (listagem e ações)
+│   └── RelayCommand.cs            # Implementação de ICommand para ações da UI
 ├── Views/
 │   ├── MainWindow.xaml            # Janela principal
-│   ├── CadastroWindow.xaml        # Tela de cadastro
+│   ├── CadastroWindow.xaml        # Tela de cadastro/edição
 │   └── EstoqueWindow.xaml         # Tela de gerenciamento de estoque
-├── App.xaml                       # Configuração da aplicação
-├── App.xaml.cs                    # Code-behind da aplicação
+├── App.xaml                       # Configuração da aplicação (recursos, estilos)
+├── App.xaml.cs                    # Code-behind da aplicação (Startup)
 └── Projeto-Integrador-SENAC.csproj
-📐 Padrões e Boas Práticas
-Padrão/Prática	Descrição
-MVVM	Separação completa entre interface (View) e lógica (ViewModel)
-SOLID	Princípios aplicados, especialmente SRP e OCP
-DRY	BaseViewModel centraliza INotifyPropertyChanged
-Data Binding	Sincronização automática entre View e ViewModel
-Injeção de Dependência	Uso de serviços com interfaces (IStorage)
-RelayCommand	Implementação reutilizável de comandos para ações da UI
-🔮 Próximos Passos
-✅ Já implementado
-CRUD completo de produtos
+````
+---
 
-Sistema de descontos (percentual e valor absoluto)
+## 📐 Padrões e Boas Práticas
 
-Controle de estoque
+| Padrão/Prática | Descrição |
+|----------------|-----------|
+| **MVVM** | Separação completa entre interface (View) e lógica de negócio (ViewModel). |
+| **SOLID** | Aplicação dos princípios, com destaque para **SRP** (cada classe tem uma única responsabilidade) e **OCP** (serviços extensíveis). |
+| **DRY** | `BaseViewModel` centraliza a implementação de `INotifyPropertyChanged`. |
+| **Data Binding** | Sincronização automática entre View e ViewModel (bidirecional). |
+| **Injeção de Dependência** | Serviços dependem de interfaces (ex.: `IStorage`) para facilitar testes e manutenção. |
+| **RelayCommand** | Implementação reutilizável de `ICommand`, eliminando code-behind. |
 
-Persistência local com StorageService
+---
 
-Interface com DataGrid para edição inline
+## 🗺️ Roadmap
 
-Conversores monetários
+### ✅ Já implementado
 
-MVVM com RelayCommand
+- [x] CRUD completo de produtos.
+- [x] Sistema de descontos (percentual e valor absoluto).
+- [x] Controle de estoque.
+- [x] Persistência local com `StorageService`.
+- [x] Interface com DataGrid para edição inline.
+- [x] Conversores monetários.
+- [x] MVVM com `RelayCommand`.
 
-📋 Futuras melhorias
-Testes unitários (xUnit/NUnit)
+---
 
-Testes de integração e UI
+### 📋 Futuras melhorias
 
-Relatórios e gráficos
+#### Curto prazo (próximas 2 semanas)
+- [ ] Testes unitários com xUnit para os serviços.
+- [ ] Configuração de CI/CD com GitHub Actions.
+- [ ] Correção de bugs reportados.
 
-Histórico de movimentações
+#### Médio prazo (1–2 meses)
+- [ ] Relatórios e gráficos (produtos mais vendidos, estoque baixo).
+- [ ] Histórico de movimentações (log de alterações).
+- [ ] Categorização de produtos (ex.: bebidas, salgados, doces).
+- [ ] Exportação de dados (CSV/Excel).
 
-Categorização de produtos
+#### Longo prazo (3+ meses)
+- [ ] Autenticação de usuários (login com perfis).
+- [ ] Banco de dados (SQLite/PostgreSQL) como opção de persistência.
+- [ ] Backups automáticos.
+- [ ] Versão multiplataforma com MAUI (opcional).
 
-Exportação de dados (CSV/Excel)
+---
 
-Autenticação de usuários
+## 🤝 Contribuição
 
-Banco de dados (SQLite/PostgreSQL)
+Contribuições são muito bem-vindas! Para contribuir com o projeto, siga os passos abaixo:
 
-Backups automáticos
+1. **Verifique as issues** abertas ou abra uma nova para discutir a alteração que você deseja fazer.
+2. **Fork** o repositório para sua conta do GitHub.
+3. Crie uma branch com um nome descritivo para a sua contribuição:
 
-🤝 Contribuição
-Fork o repositório
+   ```bash
+   git checkout -b feature/nova-funcionalidade
+   
+Ou, para correções de bugs:
 
-Crie uma branch com sua feature: git checkout -b feature/nova-funcionalidade
+```
+git checkout -b fix/correcao-bug
+````
+---   
 
-Commit suas mudanças: git commit -m 'feat: adiciona nova funcionalidade'
+## 📄 Licença
 
-Push para a branch: git push origin feature/nova-funcionalidade
-
-Abra um Pull Request descrevendo suas alterações
-
-📌 Consulte o arquivo CONTRIBUTING.md para mais detalhes (se disponível).
-
-📄 Licença
 Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais informações.
 
-📊 Status do Projeto
-https://img.shields.io/badge/vers%C3%A3o-1.0.0-blue
-https://img.shields.io/badge/testes-0%2525-red
-https://img.shields.io/badge/coverage-0%2525-red
+© 2026 - Projeto Integrador SENAC
+
+---
+
+## 👨‍🏫 Equipe
+
+##### Allan Benitez
+
+##### Matheus Souza
+
+##### Maurício Sant'anna
+
+##### Rodrigo da Cruz Godinho
+
+---
+
+## 🙏 Agradecimentos
+
+##### Aos professores e orientadores do curso.
+
+##### À comunidade open source por fornecer ferramentas incríveis.
+
+##### A todos que testaram e deram feedback durante o desenvolvimento.
