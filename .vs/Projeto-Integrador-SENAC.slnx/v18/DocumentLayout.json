@@ -5,10 +5,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{FB00E47B-FBC8-4184-FC7A-30E436E75B7D}|Projeto-Integrador-SENAC.csproj|c:\\users\\rodrigo\\desktop\\projetos\\projeto-integrador-senac\\converters\\textmoneyconverter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{FB00E47B-FBC8-4184-FC7A-30E436E75B7D}|Projeto-Integrador-SENAC.csproj|solutionrelative:converters\\textmoneyconverter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FB00E47B-FBC8-4184-FC7A-30E436E75B7D}|Projeto-Integrador-SENAC.csproj|c:\\users\\rodrigo\\desktop\\projetos\\projeto-integrador-senac\\converters\\moneyconverter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FB00E47B-FBC8-4184-FC7A-30E436E75B7D}|Projeto-Integrador-SENAC.csproj|solutionrelative:converters\\moneyconverter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -48,22 +44,9 @@
               "RelativeDocumentMoniker": "Converters\\TextMoneyConverter.cs",
               "ToolTip": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador-SENAC\\Converters\\TextMoneyConverter.cs",
               "RelativeToolTip": "Converters\\TextMoneyConverter.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAD0AAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAB8AAAAAAAAAAAAkwEQAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-20T07:28:59.773Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "MoneyConverter.cs",
-              "DocumentMoniker": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador-SENAC\\Converters\\MoneyConverter.cs",
-              "RelativeDocumentMoniker": "Converters\\MoneyConverter.cs",
-              "ToolTip": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador-SENAC\\Converters\\MoneyConverter.cs",
-              "RelativeToolTip": "Converters\\MoneyConverter.cs",
-              "ViewState": "AgIAABwAAAAAAAAAAAAgwDQAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-20T07:11:32.072Z",
+              "WhenOpened": "2026-06-20T07:59:15.144Z",
               "EditorCaption": ""
             }
           ]
