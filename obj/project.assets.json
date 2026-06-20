@@ -2476,11 +2476,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\C#\\Projeto-Integrador-SENAC\\Projeto-Integrador-SENAC.csproj",
+      "projectUniqueName": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador-SENAC\\Projeto-Integrador-SENAC.csproj",
       "projectName": "Projeto-Integrador-SENAC",
-      "projectPath": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\C#\\Projeto-Integrador-SENAC\\Projeto-Integrador-SENAC.csproj",
+      "projectPath": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador-SENAC\\Projeto-Integrador-SENAC.csproj",
       "packagesPath": "C:\\Users\\Rodrigo\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\C#\\Projeto-Integrador-SENAC\\obj\\",
+      "outputPath": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador-SENAC\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

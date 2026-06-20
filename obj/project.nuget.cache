@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "kluPRVKhFSY=",
+  "dgSpecHash": "Eq+ky6qJi9Y=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\C#\\Projeto-Integrador-SENAC\\Projeto-Integrador-SENAC.csproj",
+  "projectFilePath": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador-SENAC\\Projeto-Integrador-SENAC.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Rodrigo\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\Rodrigo\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\7.0.0\\microsoft.bcl.asyncinterfaces.7.0.0.nupkg.sha512",
