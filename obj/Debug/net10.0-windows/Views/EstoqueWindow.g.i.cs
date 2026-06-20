@@ -46,13 +46,13 @@ namespace Projeto_Integrador_SENAC {
         /// InitializeComponent
         /// </summary>
         [System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [System.CodeDom.Compiler.GeneratedCodeAttribute("PresentationBuildTasks", "10.0.8.0")]
+        [System.CodeDom.Compiler.GeneratedCodeAttribute("PresentationBuildTasks", "10.0.9.0")]
         public void InitializeComponent() {
             if (_contentLoaded) {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/Projeto-Integrador-SENAC;component/views/estoquewindow.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/Projeto-Integrador-SENAC;V1.0.0.0;component/views/estoquewindow.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\Views\EstoqueWindow.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);
@@ -62,7 +62,7 @@ namespace Projeto_Integrador_SENAC {
         }
         
         [System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [System.CodeDom.Compiler.GeneratedCodeAttribute("PresentationBuildTasks", "10.0.8.0")]
+        [System.CodeDom.Compiler.GeneratedCodeAttribute("PresentationBuildTasks", "10.0.9.0")]
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Never)]
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Design", "CA1033:InterfaceMethodsShouldBeCallableByChildTypes")]
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]

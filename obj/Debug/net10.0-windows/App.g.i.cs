@@ -45,7 +45,7 @@ namespace Projeto_Integrador_SENAC {
         /// </summary>
         [System.STAThreadAttribute()]
         [System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [System.CodeDom.Compiler.GeneratedCodeAttribute("PresentationBuildTasks", "10.0.8.0")]
+        [System.CodeDom.Compiler.GeneratedCodeAttribute("PresentationBuildTasks", "10.0.9.0")]
         public static void Main() {
             Projeto_Integrador_SENAC.App app = new Projeto_Integrador_SENAC.App();
             app.Run();
