@@ -11,7 +11,7 @@
   <img src="https://img.shields.io/badge/build-passing-brightgreen" alt="Build" />
 </p>
 
-Sistema desktop para gerenciamento de cantinas e pequenos comércios, desenvolvido em C# com WPF seguindo os padrões **MVVM** e **SOLID**. Oferece controle completo de produtos, estoque e aplicação de descontos, com interface moderna e persistência local.
+Sistema desktop para gerenciamento de cantinas e pequenos comércios, desenvolvido em C# com WPF seguindo os padrões **MVVM** e **SOLID**. Oferece controle completo de produtos, estoque e aplicação de descontos, com interface moderna e persistência em banco de dados (MariaDB/EF Core).
 
 ---
 
@@ -31,15 +31,16 @@ Pensando em evitar que os alimentos que não foram vendidos no dia sejam jogados
 
 ---
 
-## Visão Geral do Projeto
+## 📊 Visão Geral do Projeto
 
 Com uma interface intuitiva e responsiva, o sistema permite:
 
 - Cadastro e edição de produtos
+- Cadastro e gerenciamento de alunos
 - Controle de estoque em tempo real
 - Aplicação de descontos percentuais ou em valor absoluto (R$)
-- Persistência local dos dados em arquivo (formato JSON)
-- Notificação automática no horário da queima de estoque
+- Persistência dos dados em banco de dados (MariaDB com EF Core)
+- Estrutura preparada para notificações automáticas via WhatsApp
 
 ---
 
@@ -100,6 +101,7 @@ A finalidade do sistema será enviar aos clientes uma lista dos produtos que nã
 - **RNF003 - Cardápio diário**: O sistema deve gerar um cardápio diário com os produtos disponíveis.
 
 ---
+
 ## 🛠 Tecnologias
 
 | Tecnologia | Versão | Finalidade |
@@ -134,67 +136,94 @@ O projeto segue o padrão **MVVM (Model-View-ViewModel)** com separação clara 
 
 | Camada | Componentes | Responsabilidade |
 |--------|-------------|------------------|
-| **Views (XAML)** | `MainWindow`, `CadastroWindow`, `EstoqueWindow` | Interface gráfica, interação com o usuário, exibição de dados. |
-| **ViewModels** | `MainViewModel`, `CadastroViewModel`, `EstoqueViewModel`, `BaseViewModel`, `RelayCommand` | Lógica de apresentação, estado da interface, comandos e bindings. |
-| **Services** | `ProdutoService`, `DescontoService`, `EstoqueService`, `StorageService` (implements `IStorage`) | Regras de negócio, persistência, cálculos de desconto e estoque. |
-| **Models** | `Produto` | Entidade de dados (propriedades: Id, Nome, Preço, QuantidadeEstoque, Categoria). |
+| **Views (XAML)** | `MainWindow`, `AlunoWindow`, `CadastroWindow`, `EstoqueWindow` | Interface gráfica, interação com o usuário, exibição de dados. |
+| **ViewModels** | `MainViewModel`, `AlunoViewModel`, `CadastroViewModel`, `EstoqueViewModel`, `BaseViewModel`, `RelayCommand` | Lógica de apresentação, estado da interface, comandos e bindings. |
+| **Services** | `AlunoService`, `ProdutoService`, `OperacaoProdutoService`, `DescontoService`, `EstoqueService`, `MensagemService`, `Storage` | Regras de negócio, persistência (via EF Core), cálculos de desconto, estoque e notificações. |
+| **Models** | `Produto`, `Aluno` | Entidades de dados. |
 | **Converters** | `MoneyConverter`, `TextMoneyConverter` | Formatação e conversão de valores monetários para exibição e edição. |
-| **Data** | `DbContext`, `Migrations` | Configuração do banco de dados, migrações. |
-
+| **Data** | `AppDbContext`, `DesignTimeDbContextFactory`, `Migrations` | Configuração do banco de dados, contexto e migrações. |
 
 ### Serviços principais
 
-- **ProdutoService**: operações CRUD e regras de negócio para produtos.
-- **EstoqueService**: gerencia a quantidade em estoque e validações.
-- **DescontoService**: aplica descontos percentuais ou fixos, calcula o valor final.
-- **StorageService**: responsável pela leitura/gravação do arquivo de dados (persistência).
+- **AlunoService**: Operações CRUD para alunos (`IAlunoService`).
+- **ProdutoService**: Operações CRUD e regras de negócio para produtos (`IProdutoService`).
+- **OperacaoProdutoService**: Gerencia vendas, entradas e saídas de produtos (`IOperacaoProdutoService`).
+- **EstoqueService**: Gerencia a quantidade em estoque e validações (`IEstoqueService`).
+- **DescontoService**: Aplica descontos percentuais ou fixos, calcula o valor final.
+- **MensagemService**: Responsável pelo envio de notificações (integração com WhatsApp) - em desenvolvimento.
+- **Storage**: Responsável pela persistência em banco de dados via EF Core.
 
 ---
 
 ## 📦 Estrutura de Dados
 
-Os produtos são persistidos em um banco de dados MariaDB, gerenciado pelo Entity Framework Core. A estrutura da tabela Produtos é:
+Os dados são persistidos em um banco de dados MariaDB, gerenciado pelo Entity Framework Core. As migrações do EF Core são responsáveis por criar e atualizar a estrutura do banco de dados automaticamente.
 
-```SQL
-[
-  {
-    CREATE TABLE Produtos (
-    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    Nome TEXT NOT NULL,
-    Preco REAL NOT NULL,
+### Tabela `Produtos`
+
+```Sql
+CREATE TABLE Produtos (
+    Id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    Nome VARCHAR(100) NOT NULL,
+    Preco DECIMAL(10,2) NOT NULL,
     QuantidadeEstoque INTEGER NOT NULL,
-    Categoria TEXT
+    Categoria VARCHAR(50)
 );
-  },
-  {
-  CREATE TABLE Alunos (
-    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    Nome TEXT NOT NULL,
-    Preco REAL NOT NULL,
-    QuantidadeEstoque INTEGER NOT NULL,
-    Categoria TEXT
-  }
-]
 ````
-O arquivo é criado automaticamente na primeira execução, na mesma pasta do executável.
+
+### Tabela `Alunos`
+
+```Sql
+CREATE TABLE Alunos (
+    Id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    Nome VARCHAR(100) NOT NULL,
+    WhatsApp VARCHAR(20) NOT NULL,
+    DataCadastro DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+```
+
+### Gerenciamento das Migrações
+
+As migrações são gerenciadas pelo Entity Framework Core e podem ser executadas através dos comandos:
+
+````
+# Criar uma nova migração
+dotnet ef migrations add NomeDaMigracao
+
+# Atualizar o banco de dados com as migrações pendentes
+dotnet ef database update
+````
+
+### Configuração da Conexão
+
+A string de conexão com o banco de dados é configurada no AppDbContext.cs através da classe DesignTimeDbContextFactory, que permite a execução das migrações em tempo de design.
 
 ---
 
 ## 📋 Pré-requisitos
 
-Sistema Operacional: Windows 10 ou superior (WPF não é multiplataforma).
+- **Sistema Operacional**: Windows 10 ou superior (WPF não é multiplataforma).
+- **.NET SDK**: 10.0 ou superior – [Baixar aqui](https://dotnet.microsoft.com/download).
+- **Visual Studio**: 2022 (versão 17.8 ou superior) com a carga de trabalho **Desenvolvimento para desktop .NET**.
+- **MariaDB** (ou MySQL): Para o banco de dados local.
+- **(Opcional)** Git para clonar o repositório.
 
-.NET SDK 10.0 ou superior – Baixar aqui.
+### Configuração do Banco de Dados
 
-Visual Studio 2022 (versão 17.8 ou superior) com a carga de trabalho Desenvolvimento para desktop .NET.
-
-(Opcional) Git para clonar o repositório.
+1. Instale o MariaDB e crie um banco de dados.
+2. Configure a string de conexão no `AppDbContext.cs` ou no arquivo `appsettings.json`.
+3. Execute as migrações:
+   
+   ```
+   dotnet ef database update
+   ```
 
 ---
 
 ## 📁 Estrutura do Projeto
 
-````text
+````
 Projeto-Integrador-SENAC/
 ├── bin/
 │   └── Debug/
@@ -267,14 +296,15 @@ Projeto-Integrador-SENAC/
 ### ✅ Já implementado
 
 - [x] CRUD completo de produtos.
+- [x] CRUD completo de alunos.
 - [x] Sistema de descontos (percentual e valor absoluto).
 - [x] Controle de estoque.
 - [x] Interface com DataGrid para edição inline.
 - [x] Conversores monetários.
 - [x] MVVM com `RelayCommand`.
-- [x] Banco de dados (SQLite/PostgreSQL) como opção de persistência.
-
----
+- [x] Persistência em banco de dados (MariaDB/EF Core).
+- [x] Estrutura de serviços com injeção de dependência.
+- [x] Estrutura base para notificações (`MensagemService`).
 
 ### 📋 Futuras melhorias
 
@@ -282,18 +312,15 @@ Projeto-Integrador-SENAC/
 - [ ] Testes unitários com xUnit para os serviços.
 - [ ] Configuração de CI/CD com GitHub Actions.
 - [ ] Correção de bugs reportados.
-- [ ] Implementar notificações automáticas via WhatsApp.
+- [ ] Finalizar integração com WhatsApp (`MensagemService`).
 
 #### Médio prazo (1–2 meses)
 - [ ] Relatórios e gráficos (produtos mais vendidos, estoque baixo).
 - [ ] Histórico de movimentações (log de alterações).
-- [ ] Categorização de produtos (ex.: bebidas, salgados, doces).
 - [ ] Exportação de dados (CSV/Excel).
-- [ ] Compra online integrada ao sistema.
 
 #### Longo prazo (3+ meses)
 - [ ] Autenticação de usuários (login com perfis).
-
 - [ ] Backups automáticos.
 - [ ] Versão multiplataforma com MAUI (opcional).
 - [ ] Pagamento online integrado.
