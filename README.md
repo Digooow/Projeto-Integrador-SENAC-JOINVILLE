@@ -109,6 +109,8 @@ A finalidade do sistema será enviar aos clientes uma lista dos produtos que nã
 | C#         | 12     | Linguagem de programação |
 | MVVM       | -      | Padrão arquitetural ([saiba mais](https://docs.microsoft.com/pt-br/dotnet/architecture/maui/mvvm)) |
 | Data Binding| -     | Comunicação View-ViewModel |
+| Entity Framework Core | - | ORM para persistência em banco de dados |
+| MariaDB | - | Banco de dados local |
 
 ---
 
@@ -119,10 +121,10 @@ A finalidade do sistema será enviar aos clientes uma lista dos produtos que nã
 - ✅ **Descontos Flexíveis**:
   - Percentual (%) – Ex.: 10% de desconto.
   - Valor Fixo (R$) – Ex.: R$ 5,00 de desconto.
-- ✅ **Persistência Local** – Dados salvos em arquivo (`produtos.json`).
 - ✅ **Interface Responsiva** – DataGrids com edição inline.
 - ✅ **Validação de Dados** – Prevenção de entradas inválidas.
 - ✅ **Conversores Personalizados** – Formatação monetária automática.
+- ✅ **Persistência em Banco de Dados** – Dados armazenados em MariaDB/EF Core.
 
 ---
 
@@ -137,6 +139,8 @@ O projeto segue o padrão **MVVM (Model-View-ViewModel)** com separação clara 
 | **Services** | `ProdutoService`, `DescontoService`, `EstoqueService`, `StorageService` (implements `IStorage`) | Regras de negócio, persistência, cálculos de desconto e estoque. |
 | **Models** | `Produto` | Entidade de dados (propriedades: Id, Nome, Preço, QuantidadeEstoque, Categoria). |
 | **Converters** | `MoneyConverter`, `TextMoneyConverter` | Formatação e conversão de valores monetários para exibição e edição. |
+| **Data** | `DbContext`, `Migrations` | Configuração do banco de dados, migrações. |
+
 
 ### Serviços principais
 
@@ -149,23 +153,26 @@ O projeto segue o padrão **MVVM (Model-View-ViewModel)** com separação clara 
 
 ## 📦 Estrutura de Dados
 
-Os produtos são persistidos em um arquivo JSON (`produtos.json`) com a seguinte estrutura:
+Os produtos são persistidos em um banco de dados MariaDB, gerenciado pelo Entity Framework Core. A estrutura da tabela Produtos é:
 
-```json
+```SQL
 [
   {
-    "Id": 1,
-    "Nome": "Coxinha",
-    "Preco": 6.50,
-    "QuantidadeEstoque": 10,
-    "Categoria": "Salgados"
+    CREATE TABLE Produtos (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Nome TEXT NOT NULL,
+    Preco REAL NOT NULL,
+    QuantidadeEstoque INTEGER NOT NULL,
+    Categoria TEXT
+);
   },
   {
-    "Id": 2,
-    "Nome": "Refrigerante 350ml",
-    "Preco": 4.00,
-    "QuantidadeEstoque": 25,
-    "Categoria": "Bebidas"
+  CREATE TABLE Alunos (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Nome TEXT NOT NULL,
+    Preco REAL NOT NULL,
+    QuantidadeEstoque INTEGER NOT NULL,
+    Categoria TEXT
   }
 ]
 ````
@@ -189,29 +196,56 @@ Visual Studio 2022 (versão 17.8 ou superior) com a carga de trabalho Desenvolvi
 
 ````text
 Projeto-Integrador-SENAC/
+├── bin/
+│   └── Debug/
+│       └── net10.0-windows/             # Arquivos compilados (gerados automaticamente)
+├── obj/                                 # Arquivos temporários de compilação (gerados automaticamente)
 ├── Converters/
-│   ├── MoneyConverter.cs          # Converte decimal para formato monetário (ex.: R$ 10,00)
-│   └── TextMoneyConverter.cs      # Converte string para decimal (edição no DataGrid)
+│   ├── MoneyConverter.cs                # Converte decimal para formato monetário (ex.: R$ 10,00)
+│   └── TextMoneyConverter.cs            # Converte string para decimal (edição no DataGrid)
+├── Data/
+│   ├── AppDbContext.cs                  # Contexto do Entity Framework Core para banco de dados
+│   └── DesignTimeDbContextFactory.cs    # Fábrica para criação do contexto em tempo de design (migrações)
+├── Migrations/                          # Migrações automáticas do banco de dados (EF Core)
 ├── Models/
-│   └── Produto.cs                 # Entidade Produto (Id, Nome, Preço, Estoque, etc.)
+│   ├── Aluno.cs                         # Entidade Aluno (Id, Nome, WhatsApp, etc.)
+│   └── Produto.cs                       # Entidade Produto (Id, Nome, Preço, Estoque, Categoria)
 ├── Services/
-│   ├── DescontoService.cs         # Lógica de aplicação de descontos
-│   ├── EstoqueService.cs          # Gerenciamento de quantidades
-│   ├── ProdutoService.cs          # Operações CRUD e regras de negócio
-│   └── StorageService.cs          # Persistência em arquivo (JSON)
+│   ├── AlunoService.cs                  # CRUD e regras de negócio para alunos
+│   ├── DescontoService.cs               # Lógica de aplicação de descontos
+│   ├── EstoqueService.cs                # Gerenciamento de quantidades em estoque
+│   ├── IAlunoService.cs                 # Interface para injeção de dependência de AlunoService
+│   ├── IEstoqueService.cs               # Interface para injeção de dependência de EstoqueService
+│   ├── IOperacaoProdutoService.cs       # Interface para injeção de dependência de OperacaoProdutoService
+│   ├── IProdutoService.cs               # Interface para injeção de dependência de ProdutoService
+│   ├── MensagemService.cs               # Serviço de notificações (WhatsApp)
+│   ├── OperacaoProdutoService.cs        # Registro de vendas e movimentações de produtos
+│   ├── ProdutoService.cs                # CRUD e regras de negócio para produtos
+│   └── Storage.cs                       # Persistência em banco de dados (via EF Core)
 ├── ViewModels/
-│   ├── BaseViewModel.cs           # Classe base com INotifyPropertyChanged
-│   ├── CadastroViewModel.cs       # Lógica da tela de cadastro/edição
-│   ├── EstoqueViewModel.cs        # Lógica da tela de estoque
-│   ├── MainViewModel.cs           # ViewModel principal (listagem e ações)
-│   └── RelayCommand.cs            # Implementação de ICommand para ações da UI
+│   ├── AlunoViewModel.cs                # Lógica da tela de gerenciamento de alunos
+│   ├── BaseViewModel.cs                 # Classe base com INotifyPropertyChanged
+│   ├── CadastroViewModel.cs             # Lógica da tela de cadastro/edição de produtos
+│   ├── EstoqueViewModel.cs              # Lógica da tela de gerenciamento de estoque
+│   ├── MainViewModel.cs                 # ViewModel principal (listagem e ações)
+│   └── RelayCommand.cs                  # Implementação de ICommand para ações da UI
 ├── Views/
-│   ├── MainWindow.xaml            # Janela principal
-│   ├── CadastroWindow.xaml        # Tela de cadastro/edição
-│   └── EstoqueWindow.xaml         # Tela de gerenciamento de estoque
-├── App.xaml                       # Configuração da aplicação (recursos, estilos)
-├── App.xaml.cs                    # Code-behind da aplicação (Startup)
-└── Projeto-Integrador-SENAC.csproj
+│   ├── AlunoWindow.xaml                 # Tela de gerenciamento de alunos (cadastro, listagem, edição)
+│   ├── AlunoWindow.xaml.cs              # Code-behind da tela de alunos (eventos, inicialização)
+│   ├── CadastroWindow.xaml              # Tela de cadastro/edição de produtos
+│   ├── CadastroWindow.xaml.cs           # Code-behind da tela de cadastro de produtos
+│   ├── EstoqueWindow.xaml               # Tela de gerenciamento de estoque
+│   ├── EstoqueWindow.xaml.cs            # Code-behind da tela de estoque
+│   ├── MainWindow.xaml                  # Janela principal do sistema
+│   └── MainWindow.xaml.cs               # Code-behind da janela principal (eventos, inicialização)
+├── App.xaml                             # Configuração da aplicação (recursos, estilos)
+├── App.xaml.cs                          # Code-behind da aplicação (Startup, configurações)
+├── AssemblyInfo.cs                      # Informações do assembly (versão, atributos)
+├── .gitignore                           # Arquivos ignorados pelo Git
+├── Projeto-Integrador-SENAC.csproj      # Arquivo do projeto (dependências, referências)
+├── Projeto-Integrador-SENAC.csproj.user # Configurações específicas do usuário (gerado automaticamente)
+├── Projeto-Integrador-SENAC.slnx        # Arquivo da solução (organização do projeto)
+└── README.md                            # Documentação do projeto
 ````
 ---
 
@@ -235,10 +269,10 @@ Projeto-Integrador-SENAC/
 - [x] CRUD completo de produtos.
 - [x] Sistema de descontos (percentual e valor absoluto).
 - [x] Controle de estoque.
-- [x] Persistência local com `StorageService`.
 - [x] Interface com DataGrid para edição inline.
 - [x] Conversores monetários.
 - [x] MVVM com `RelayCommand`.
+- [x] Banco de dados (SQLite/PostgreSQL) como opção de persistência.
 
 ---
 
@@ -259,7 +293,7 @@ Projeto-Integrador-SENAC/
 
 #### Longo prazo (3+ meses)
 - [ ] Autenticação de usuários (login com perfis).
-- [ ] Banco de dados (SQLite/PostgreSQL) como opção de persistência.
+
 - [ ] Backups automáticos.
 - [ ] Versão multiplataforma com MAUI (opcional).
 - [ ] Pagamento online integrado.
