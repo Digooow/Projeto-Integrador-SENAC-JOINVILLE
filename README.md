@@ -329,7 +329,7 @@ Projeto-Integrador-SENAC/
 
 ## 👨‍🏫 Equipe
 
-##### Allan Benitez
+##### Alan Benitez
 
 ##### Matheus Souza
 
