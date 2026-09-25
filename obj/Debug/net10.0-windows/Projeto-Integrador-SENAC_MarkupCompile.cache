@@ -1,5 +1,5 @@
 ﻿Projeto-Integrador-SENAC
-
+1.0.0.0
 
 winexe
 C#
@@ -12,9 +12,9 @@ TRACE;DEBUG;NET;NET10_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_O
 C:\Users\Rodrigo\Desktop\Projetos\Projeto-Integrador-SENAC\App.xaml
 41796047033
 
-33-1921561470
-220-959082378
+351254481537
+2201583310414
 Views\AlunoWindow.xaml;Views\CadastroWindow.xaml;Views\EstoqueWindow.xaml;Views\MainWindow.xaml;
 
-False
+True
 

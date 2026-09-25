@@ -3,8 +3,28 @@
   "WorkspaceRootPath": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador-SENAC\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{FB00E47B-FBC8-4184-FC7A-30E436E75B7D}|Projeto-Integrador-SENAC.csproj|c:\\users\\rodrigo\\desktop\\projetos\\projeto-integrador-senac\\readme.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
-      "RelativeMoniker": "D:0:0:{FB00E47B-FBC8-4184-FC7A-30E436E75B7D}|Projeto-Integrador-SENAC.csproj|solutionrelative:readme.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+      "AbsoluteMoniker": "D:0:0:{FB00E47B-FBC8-4184-FC7A-30E436E75B7D}|Projeto-Integrador-SENAC.csproj|c:\\users\\rodrigo\\desktop\\projetos\\projeto-integrador-senac\\services\\alunoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FB00E47B-FBC8-4184-FC7A-30E436E75B7D}|Projeto-Integrador-SENAC.csproj|solutionrelative:services\\alunoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FB00E47B-FBC8-4184-FC7A-30E436E75B7D}|Projeto-Integrador-SENAC.csproj|c:\\users\\rodrigo\\desktop\\projetos\\projeto-integrador-senac\\models\\produto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FB00E47B-FBC8-4184-FC7A-30E436E75B7D}|Projeto-Integrador-SENAC.csproj|solutionrelative:models\\produto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FB00E47B-FBC8-4184-FC7A-30E436E75B7D}|Projeto-Integrador-SENAC.csproj|c:\\users\\rodrigo\\desktop\\projetos\\projeto-integrador-senac\\models\\aluno.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FB00E47B-FBC8-4184-FC7A-30E436E75B7D}|Projeto-Integrador-SENAC.csproj|solutionrelative:models\\aluno.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FB00E47B-FBC8-4184-FC7A-30E436E75B7D}|Projeto-Integrador-SENAC.csproj|c:\\users\\rodrigo\\desktop\\projetos\\projeto-integrador-senac\\migrations\\20260608014003_inicial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FB00E47B-FBC8-4184-FC7A-30E436E75B7D}|Projeto-Integrador-SENAC.csproj|solutionrelative:migrations\\20260608014003_inicial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FB00E47B-FBC8-4184-FC7A-30E436E75B7D}|Projeto-Integrador-SENAC.csproj|c:\\users\\rodrigo\\desktop\\projetos\\projeto-integrador-senac\\data\\designtimedbcontextfactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FB00E47B-FBC8-4184-FC7A-30E436E75B7D}|Projeto-Integrador-SENAC.csproj|solutionrelative:data\\designtimedbcontextfactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FB00E47B-FBC8-4184-FC7A-30E436E75B7D}|Projeto-Integrador-SENAC.csproj|c:\\users\\rodrigo\\desktop\\projetos\\projeto-integrador-senac\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FB00E47B-FBC8-4184-FC7A-30E436E75B7D}|Projeto-Integrador-SENAC.csproj|solutionrelative:data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -14,7 +34,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -37,16 +57,89 @@
               "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
             },
             {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{6324226f-61b6-4f28-92ee-18d4b5fe1e48}"
+            },
+            {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "README.md",
-              "DocumentMoniker": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador-SENAC\\README.md",
-              "RelativeDocumentMoniker": "README.md",
-              "ToolTip": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador-SENAC\\README.md",
-              "RelativeToolTip": "README.md",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAANAAAAAwAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
-              "WhenOpened": "2026-06-20T09:45:01.615Z",
+              "Title": "AlunoService.cs",
+              "DocumentMoniker": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador-SENAC\\Services\\AlunoService.cs",
+              "RelativeDocumentMoniker": "Services\\AlunoService.cs",
+              "ToolTip": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador-SENAC\\Services\\AlunoService.cs",
+              "RelativeToolTip": "Services\\AlunoService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-03T04:29:32.445Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Produto.cs",
+              "DocumentMoniker": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador-SENAC\\Models\\Produto.cs",
+              "RelativeDocumentMoniker": "Models\\Produto.cs",
+              "ToolTip": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador-SENAC\\Models\\Produto.cs",
+              "RelativeToolTip": "Models\\Produto.cs",
+              "ViewState": "AgIAAHwAAAAAAAAAAAAYwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-03T04:28:32.61Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Aluno.cs",
+              "DocumentMoniker": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador-SENAC\\Models\\Aluno.cs",
+              "RelativeDocumentMoniker": "Models\\Aluno.cs",
+              "ToolTip": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador-SENAC\\Models\\Aluno.cs",
+              "RelativeToolTip": "Models\\Aluno.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-03T04:27:52.821Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "20260608014003_Inicial.cs",
+              "DocumentMoniker": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador-SENAC\\Migrations\\20260608014003_Inicial.cs",
+              "RelativeDocumentMoniker": "Migrations\\20260608014003_Inicial.cs",
+              "ToolTip": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador-SENAC\\Migrations\\20260608014003_Inicial.cs",
+              "RelativeToolTip": "Migrations\\20260608014003_Inicial.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAgwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-03T04:27:44.418Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "DesignTimeDbContextFactory.cs",
+              "DocumentMoniker": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador-SENAC\\Data\\DesignTimeDbContextFactory.cs",
+              "RelativeDocumentMoniker": "Data\\DesignTimeDbContextFactory.cs",
+              "ToolTip": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador-SENAC\\Data\\DesignTimeDbContextFactory.cs",
+              "RelativeToolTip": "Data\\DesignTimeDbContextFactory.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-03T04:27:27.266Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "AppDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador-SENAC\\Data\\AppDbContext.cs",
+              "RelativeDocumentMoniker": "Data\\AppDbContext.cs",
+              "ToolTip": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador-SENAC\\Data\\AppDbContext.cs",
+              "RelativeToolTip": "Data\\AppDbContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-03T04:27:20.447Z",
               "EditorCaption": ""
             }
           ]

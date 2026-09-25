@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Projeto-Integrador-SENAC")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+54d6c89efb7d3dcb5258f85d11eb92339de4058f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0b945f8c52a4c790d8f57985f0c3c675bfa613ae")]
 [assembly: System.Reflection.AssemblyProductAttribute("Projeto-Integrador-SENAC")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Projeto-Integrador-SENAC")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
