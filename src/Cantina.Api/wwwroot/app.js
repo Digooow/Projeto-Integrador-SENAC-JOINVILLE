@@ -12,6 +12,7 @@
 
   // Fallback obrigatório para navegadores sem suporte nativo a <dialog closedby="any">
   const attachLightDismissFallback = (dialog) => {
+    if (!dialog) return;
     if (!('closedBy' in HTMLDialogElement.prototype)) {
       dialog.addEventListener('click', (event) => {
         if (event.target !== dialog) return;
@@ -48,11 +49,49 @@
     }
   });
 
+  // Fechamento de modais via data-close-dialog
   document.querySelectorAll('[data-close-dialog]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const id = btn.getAttribute('data-close-dialog');
       document.getElementById(id)?.close();
     });
+  });
+
+  // Abertura do carrinho pelo botão do topo
+  document.getElementById('btnTopoCarrinho')?.addEventListener('click', () => {
+    const { qtdItens } = calcularTotaisSacola();
+    if (qtdItens > 0) {
+      abrirModalCheckout();
+    } else {
+      // Se a sacola estiver vazia, rola suavemente para o cardápio
+      document.querySelector('.toolbar-section')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+
+  // Botão do Hero para filtrar ofertas
+  document.getElementById('btnVerOfertasHero')?.addEventListener('click', () => {
+    categoriaSelecionada = 'OFERTAS';
+    renderizarCategorias();
+    renderizarProdutos();
+    document.querySelector('.toolbar-section')?.scrollIntoView({ behavior: 'smooth' });
+  });
+
+  // Limpar busca
+  const campoBusca = document.getElementById('campoBusca');
+  const btnLimparBusca = document.getElementById('btnLimparBusca');
+
+  campoBusca?.addEventListener('input', (e) => {
+    termoBusca = (e.target.value || '').trim().toLowerCase();
+    btnLimparBusca.hidden = !termoBusca;
+    renderizarProdutos();
+  });
+
+  btnLimparBusca?.addEventListener('click', () => {
+    campoBusca.value = '';
+    termoBusca = '';
+    btnLimparBusca.hidden = true;
+    renderizarProdutos();
+    campoBusca.focus();
   });
 
   async function carregarCardapio() {
@@ -62,18 +101,18 @@
       cardapio = await resp.json();
 
       document.getElementById('cantinaNome').textContent = cardapio.nomeCantina;
-      document.getElementById('horarioQueimaTexto').textContent = cardapio.horarioQueima;
+      document.getElementById('horarioQueimaTexto').textContent = `Queima diária às ${cardapio.horarioQueima}`;
 
       const ofertasAtivas = cardapio.produtos.filter((p) => p.temDesconto && p.quantidadeDisponivel > 0);
       document.getElementById('contadorOfertasHero').textContent = String(ofertasAtivas.length);
 
       const badge = document.getElementById('badgeQueima');
       if (cardapio.modoAntidesperdicioAtivo) {
-        badge.className = 'status-pill active-burn';
-        badge.textContent = `🔥 Cardápio Antidesperdício ATIVO! (${ofertasAtivas.length} itens com desconto)`;
+        badge.className = 'burn-pill active-burn';
+        badge.innerHTML = `<span class="burn-icon" aria-hidden="true">🔥</span><span>Cardápio Antidesperdício ATIVO! (${ofertasAtivas.length} ofertas)</span>`;
       } else {
-        badge.className = 'status-pill';
-        badge.textContent = `⏰ Queima automática diária às ${cardapio.horarioQueima}`;
+        badge.className = 'burn-pill';
+        badge.innerHTML = `<span class="burn-icon" aria-hidden="true">🔥</span><span id="horarioQueimaTexto">Queima diária às ${cardapio.horarioQueima}</span>`;
       }
 
       renderizarGrupos();
@@ -95,7 +134,7 @@
       link.href = g.linkConvite || '#';
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
-      link.textContent = `📲 Grupo ${g.nome} (${g.participantesEstimados} alunos)`;
+      link.innerHTML = `<span aria-hidden="true">💬</span> <span>Grupo ${g.nome}</span> <span style="opacity:0.75; font-size:0.76rem;">(${g.participantesEstimados})</span>`;
       container.appendChild(link);
     });
   }
@@ -106,13 +145,14 @@
 
     const opcoes = [
       { id: 'TODOS', label: '🍽️ Todos' },
-      { id: 'OFERTAS', label: '🔥 Ofertas Antidesperdício' },
+      { id: 'OFERTAS', label: '🔥 Ofertas 20:45' },
       ...cardapio.categorias.map((c) => ({ id: String(c.id), label: `${c.iconeEmoji} ${c.nome}` }))
     ];
 
     opcoes.forEach((op) => {
       const btn = document.createElement('button');
       btn.type = 'button';
+      btn.setAttribute('data-cat', op.id);
       btn.className = `pill-btn ${categoriaSelecionada === op.id ? 'active' : ''}`;
       btn.textContent = op.label;
       btn.addEventListener('click', () => {
@@ -140,10 +180,15 @@
     });
 
     if (filtrados.length === 0) {
-      const msg = document.createElement('p');
-      msg.className = 'muted-center';
-      msg.textContent = 'Nenhum item encontrado para este filtro.';
-      grid.appendChild(msg);
+      const emptyBox = document.createElement('div');
+      emptyBox.className = 'tracker-empty-state';
+      emptyBox.style.gridColumn = '1 / -1';
+      emptyBox.innerHTML = `
+        <span class="empty-icon">🔍</span>
+        <strong>Nenhum produto encontrado</strong>
+        <p style="margin:4px 0 0; font-size:0.86rem; color:var(--slate-500);">Tente buscar outro termo ou selecione outra categoria.</p>
+      `;
+      grid.appendChild(emptyBox);
       return;
     }
 
@@ -154,13 +199,15 @@
       const card = document.createElement('article');
       card.className = `product-card ${p.temDesconto ? 'promo' : ''}`;
 
+      // Badge de Promoção
       if (p.temDesconto) {
         const ribbon = document.createElement('span');
         ribbon.className = 'promo-ribbon';
-        ribbon.textContent = `-${p.percentualDescontoEfetivo}% Antidesperdício`;
+        ribbon.innerHTML = `🔥 -${p.percentualDescontoEfetivo}% OFF`;
         card.appendChild(ribbon);
       }
 
+      // Conteúdo Superior
       const body = document.createElement('div');
 
       const top = document.createElement('div');
@@ -171,31 +218,46 @@
       emoji.textContent = p.iconeEmoji || '🥐';
 
       const meta = document.createElement('div');
-      const cat = document.createElement('span');
-      cat.className = 'product-cat';
-      cat.textContent = p.categoriaNome;
-      const title = document.createElement('h3');
+      meta.className = 'product-meta';
+
+      const catTag = document.createElement('span');
+      catTag.className = 'product-cat-tag';
+      catTag.textContent = p.categoriaNome;
+
+      const title = document.createElement('h4');
       title.className = 'product-title';
       title.textContent = p.nome;
 
-      meta.append(cat, title);
+      meta.append(catTag, title);
       top.append(emoji, meta);
 
       const desc = document.createElement('p');
       desc.className = 'product-desc';
-      desc.textContent = p.descricao || 'Preparado fresquinho pela equipe da Cantina ALAMO.';
+      desc.textContent = p.descricao || 'Preparado fresquinho na Cantina ALAMO.';
 
       body.append(top, desc);
 
+      // Rodapé com Preço e Ação
       const footer = document.createElement('div');
       footer.className = 'product-footer';
 
       const priceCol = document.createElement('div');
+      priceCol.className = 'product-pricing';
+
       if (p.temDesconto) {
+        const oldRow = document.createElement('div');
+        oldRow.className = 'price-old-row';
+
         const oldP = document.createElement('span');
         oldP.className = 'price-old';
         oldP.textContent = `De ${fmtMoeda.format(p.precoVenda)}`;
-        priceCol.appendChild(oldP);
+
+        const savingTag = document.createElement('span');
+        savingTag.className = 'badge-saving-pill';
+        savingTag.textContent = `-${fmtMoeda.format(p.economiaUnitaria)}`;
+
+        oldRow.append(oldP, savingTag);
+        priceCol.appendChild(oldRow);
       }
 
       const finalP = document.createElement('span');
@@ -203,8 +265,16 @@
       finalP.textContent = fmtMoeda.format(p.precoFinal);
 
       const stock = document.createElement('span');
-      stock.className = 'stock-label';
-      stock.textContent = esgotado ? 'Esgotado no momento' : `${p.quantidadeDisponivel} disponíveis`;
+      if (esgotado) {
+        stock.className = 'stock-pill out';
+        stock.textContent = '❌ Esgotado hoje';
+      } else if (p.quantidadeDisponivel <= 3) {
+        stock.className = 'stock-pill low';
+        stock.textContent = `⚠️ Só restam ${p.quantidadeDisponivel}!`;
+      } else {
+        stock.className = 'stock-pill';
+        stock.textContent = `✓ ${p.quantidadeDisponivel} disponíveis`;
+      }
 
       priceCol.append(finalP, stock);
 
@@ -212,26 +282,31 @@
       if (qtdNaSacola === 0) {
         const addBtn = document.createElement('button');
         addBtn.type = 'button';
-        addBtn.className = 'btn-primary';
+        addBtn.className = 'btn-card-add';
         addBtn.disabled = esgotado;
-        addBtn.textContent = esgotado ? 'Esgotado' : '+ Pedir';
+        addBtn.innerHTML = esgotado ? 'Esgotado' : '<span aria-hidden="true">+</span> Pedir';
         addBtn.addEventListener('click', () => alterarSacola(p.id, 1));
         actionCol.appendChild(addBtn);
       } else {
         const stepper = document.createElement('div');
-        stepper.className = 'stepper';
+        stepper.className = 'stepper-container';
 
         const minus = document.createElement('button');
         minus.type = 'button';
+        minus.className = 'stepper-btn';
         minus.textContent = '−';
+        minus.setAttribute('aria-label', `Remover uma unidade de ${p.nome}`);
         minus.addEventListener('click', () => alterarSacola(p.id, -1));
 
-        const count = document.createElement('strong');
+        const count = document.createElement('span');
+        count.className = 'stepper-count';
         count.textContent = String(qtdNaSacola);
 
         const plus = document.createElement('button');
         plus.type = 'button';
+        plus.className = 'stepper-btn';
         plus.textContent = '+';
+        plus.setAttribute('aria-label', `Adicionar uma unidade de ${p.nome}`);
         plus.disabled = qtdNaSacola >= p.quantidadeDisponivel;
         plus.addEventListener('click', () => alterarSacola(p.id, 1));
 
@@ -283,7 +358,12 @@
 
   function atualizarBarraSacola() {
     const barra = document.getElementById('barraSacola');
+    const badgeTopo = document.getElementById('badgeContadorTopo');
     const { qtdItens, totalFinal, economia } = calcularTotaisSacola();
+
+    if (badgeTopo) {
+      badgeTopo.textContent = String(qtdItens);
+    }
 
     if (qtdItens === 0) {
       barra.hidden = true;
@@ -291,18 +371,40 @@
     }
 
     barra.hidden = false;
+    document.getElementById('sacolaBadgeQtd').textContent = String(qtdItens);
     document.getElementById('sacolaResumoItens').textContent =
       `${qtdItens} ${qtdItens === 1 ? 'item selecionado' : 'itens selecionados'}`;
 
-    const textoEconomia = economia > 0 ? ` • Economia antidesperdício: ${fmtMoeda.format(economia)}` : '';
+    const ecoBadge = document.getElementById('sacolaResumoEconomia');
+    if (economia > 0) {
+      ecoBadge.hidden = false;
+      ecoBadge.textContent = `Economia: ${fmtMoeda.format(economia)}`;
+    } else {
+      ecoBadge.hidden = true;
+    }
+
     document.getElementById('sacolaResumoValores').textContent =
-      `Total: ${fmtMoeda.format(totalFinal)}${textoEconomia}`;
+      `Total: ${fmtMoeda.format(totalFinal)}`;
   }
+
+  function abrirModalCheckout() {
+    document.getElementById('erroEnvioPedido').hidden = true;
+    preencherResumoModalCheckout();
+    checkoutDialog.showModal();
+  }
+
+  document.getElementById('btnFinalizarSacola')?.addEventListener('click', abrirModalCheckout);
 
   function preencherResumoModalCheckout() {
     const lista = document.getElementById('itensSacolaLista');
     const totaisBox = document.getElementById('totaisSacolaBox');
+    const counterBadge = document.getElementById('checkoutTotalItensCount');
     lista.innerHTML = '';
+
+    const { qtdItens, totalFinal, economia } = calcularTotaisSacola();
+    if (counterBadge) {
+      counterBadge.textContent = `${qtdItens} ${qtdItens === 1 ? 'item' : 'itens'}`;
+    }
 
     for (const [id, qtd] of sacola.entries()) {
       const p = cardapio.produtos.find((x) => x.id === id);
@@ -311,34 +413,48 @@
       const row = document.createElement('div');
       row.className = 'cart-item-row';
 
-      const nomeSpan = document.createElement('span');
-      nomeSpan.textContent = `${qtd}x ${p.iconeEmoji} ${p.nome}`;
+      const left = document.createElement('div');
+      left.className = 'cart-item-left';
 
-      const valSpan = document.createElement('strong');
-      valSpan.textContent = fmtMoeda.format(qtd * p.precoFinal);
+      const em = document.createElement('span');
+      em.className = 'cart-item-emoji';
+      em.textContent = p.iconeEmoji || '🥐';
 
-      row.append(nomeSpan, valSpan);
+      const info = document.createElement('div');
+      info.className = 'cart-item-info';
+
+      const name = document.createElement('strong');
+      name.textContent = `${qtd}x ${p.nome}`;
+
+      const unit = document.createElement('span');
+      unit.textContent = `${fmtMoeda.format(p.precoFinal)} cada`;
+
+      info.append(name, unit);
+      left.append(em, info);
+
+      const subtotal = document.createElement('span');
+      subtotal.className = 'cart-item-subtotal';
+      subtotal.textContent = fmtMoeda.format(qtd * p.precoFinal);
+
+      row.append(left, subtotal);
       lista.appendChild(row);
     }
 
-    const { totalFinal, economia } = calcularTotaisSacola();
-    totaisBox.textContent = economia > 0
-      ? `Total a pagar: ${fmtMoeda.format(totalFinal)} (Você está economizando ${fmtMoeda.format(economia)}!)`
-      : `Total a pagar: ${fmtMoeda.format(totalFinal)}`;
+    totaisBox.innerHTML = `
+      ${economia > 0 ? `
+        <div class="cart-total-row saving">
+          <span>🌱 Economia Antidesperdício:</span>
+          <strong>-${fmtMoeda.format(economia)}</strong>
+        </div>
+      ` : ''}
+      <div class="cart-total-row main-total">
+        <span>Total a Pagar na Retirada:</span>
+        <strong style="color:var(--emerald-600);">${fmtMoeda.format(totalFinal)}</strong>
+      </div>
+    `;
   }
 
-  document.getElementById('campoBusca').addEventListener('input', (e) => {
-    termoBusca = (e.target.value || '').trim().toLowerCase();
-    renderizarProdutos();
-  });
-
-  document.getElementById('btnFinalizarSacola').addEventListener('click', () => {
-    document.getElementById('erroEnvioPedido').hidden = true;
-    preencherResumoModalCheckout();
-    checkoutDialog.showModal();
-  });
-
-  document.getElementById('formPedido').addEventListener('submit', async (e) => {
+  document.getElementById('formPedido')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const form = e.currentTarget;
     if (!form.reportValidity()) return;
@@ -347,7 +463,7 @@
     const erroBox = document.getElementById('erroEnvioPedido');
     erroBox.hidden = true;
     btn.disabled = true;
-    btn.textContent = 'Reservando pedido...';
+    btn.innerHTML = '<span>Reservando pedido...</span>';
 
     try {
       const itens = Array.from(sacola.entries()).map(([produtoId, quantidade]) => ({
@@ -388,11 +504,11 @@
       erroBox.hidden = false;
     } finally {
       btn.disabled = false;
-      btn.textContent = 'Confirmar Reserva Sem Fila';
+      btn.innerHTML = '<span class="btn-icon">⚡</span><span>Confirmar Pedido Fura-Fila</span>';
     }
   });
 
-  document.getElementById('btnAbrirRastreador').addEventListener('click', () => {
+  document.getElementById('btnAbrirRastreador')?.addEventListener('click', () => {
     const salvo = localStorage.getItem('ultimoPedidoCantina') || '';
     if (salvo) {
       abrirTrackerComCodigo(salvo);
@@ -401,7 +517,7 @@
     }
   });
 
-  document.getElementById('formBuscaCodigo').addEventListener('submit', async (e) => {
+  document.getElementById('formBuscaCodigo')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const cod = document.getElementById('inputCodigoPedido').value.trim();
     if (cod) {
@@ -409,7 +525,7 @@
     }
   });
 
-  trackerDialog.addEventListener('close', () => {
+  trackerDialog?.addEventListener('close', () => {
     if (trackerTimer) {
       clearInterval(trackerTimer);
       trackerTimer = null;
@@ -436,11 +552,13 @@
     try {
       const resp = await fetch(`/api/v1/pedidos/${encodeURIComponent(codigo.replace('#', ''))}`);
       if (!resp.ok) {
-        container.innerHTML = '';
-        const p = document.createElement('p');
-        p.className = 'muted-center';
-        p.textContent = `Pedido "${codigo}" não encontrado.`;
-        container.appendChild(p);
+        container.innerHTML = `
+          <div class="tracker-empty-state">
+            <span class="empty-icon">❌</span>
+            <strong>Pedido não localizado</strong>
+            <p style="margin:4px 0 0; font-size:0.86rem; color:var(--slate-500);">Verifique se o código "${codigo}" foi digitado corretamente.</p>
+          </div>
+        `;
         return;
       }
 
@@ -459,9 +577,9 @@
     const card = document.createElement('div');
     card.className = 'pickup-card';
 
-    const label = document.createElement('span');
-    label.className = 'product-cat';
-    label.textContent = `Cliente: ${pedido.nomeCliente} • Turno ${pedido.turno}`;
+    const meta = document.createElement('div');
+    meta.className = 'pickup-header-meta';
+    meta.textContent = `Cliente: ${pedido.nomeCliente} • Turno ${pedido.turno}`;
 
     const code = document.createElement('div');
     code.className = 'pickup-code';
@@ -481,7 +599,7 @@
       const cancelMsg = document.createElement('div');
       cancelMsg.className = 'alert-error';
       cancelMsg.textContent = 'Este pedido foi cancelado pela cantina.';
-      card.append(label, code, cancelMsg);
+      card.append(meta, code, cancelMsg);
     } else {
       etapas.forEach((et) => {
         const b = document.createElement('div');
@@ -493,11 +611,12 @@
       });
 
       const msgStatus = document.createElement('p');
+      msgStatus.className = pedido.status === 'ProntoParaRetirada' ? 'tracker-msg ready-alert' : 'tracker-msg';
       msgStatus.textContent = pedido.status === 'ProntoParaRetirada'
         ? '🔔 SEU LANCHE ESTÁ PRONTO! Passe direto no balcão Fura-Fila informando o código acima.'
-        : 'Acompanhe por aqui ou aguarde nossa mensagem automática no seu WhatsApp!';
+        : 'Seu pedido foi registrado. Avisaremos no WhatsApp quando estiver pronto para retirada!';
 
-      card.append(label, code, stepsDiv, msgStatus);
+      card.append(meta, code, stepsDiv, msgStatus);
     }
 
     if (pedido.ultimoLinkWhatsApp) {
@@ -506,13 +625,16 @@
       waLink.href = pedido.ultimoLinkWhatsApp;
       waLink.target = '_blank';
       waLink.rel = 'noopener noreferrer';
-      waLink.textContent = '📲 Abrir comprovante no WhatsApp';
+      waLink.style.display = 'inline-flex';
+      waLink.style.marginTop = '12px';
+      waLink.innerHTML = '📲 Abrir conversa no WhatsApp';
       card.appendChild(waLink);
     }
 
     container.appendChild(card);
   }
 
+  // Consulta por query param ?pedido=AL-XXXX
   const params = new URLSearchParams(window.location.search);
   const pedidoQuery = params.get('pedido');
   carregarCardapio().then(() => {
@@ -521,7 +643,6 @@
     }
   });
 
-  // Atualização automática do estoque a cada 10s
+  // Atualização suave a cada 10s
   setInterval(carregarCardapio, 10000);
 })();
-
