@@ -1,0 +1,32 @@
+# ==============================================================================
+# Blueprint Gratuito Render.com — Deploy 1-Clique do Site + API + PostgreSQL
+# ==============================================================================
+services:
+  - type: web
+    name: cantina-alamo-senac
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cantina-alamo-db
+          property: connectionString
+      - key: Security__AdminApiKey
+        generateValue: true
+      - key: CantinaOperacao__NomeCantina
+        value: "Cantina ALAMO — SENAC"
+      - key: CantinaOperacao__HorarioQueimaDiaria
+        value: "20:45"
+      - key: CantinaOperacao__PercentualDescontoPadrao
+        value: "40"
+      - key: WhatsApp__Provider
+        value: "Disabled"
+
+databases:
+  - name: cantina-alamo-db
+    plan: free
+    databaseName: cantina_alamo
+    user: cantina_user

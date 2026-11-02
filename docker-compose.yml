@@ -1,0 +1,61 @@
+services:
+  cantina-db:
+    image: postgres:16-alpine
+    container_name: cantina-alamo-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cantina_alamo
+      POSTGRES_USER: cantina
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cantina_senac_2026}
+    ports:
+      - "5432:5432"
+    volumes:
+      - cantina_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cantina -d cantina_alamo"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  cantina-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cantina-alamo-web
+    restart: unless-stopped
+    depends_on:
+      cantina-db:
+        condition: service_healthy
+    ports:
+      - "5180:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      DATABASE_URL: postgres://cantina:${POSTGRES_PASSWORD:-cantina_senac_2026}@cantina-db:5432/cantina_alamo
+      Security__AdminApiKey: ${ADMIN_API_KEY:-}
+      CantinaOperacao__NomeCantina: "Cantina ALAMO — SENAC"
+      CantinaOperacao__HorarioQueimaDiaria: "20:45"
+      CantinaOperacao__PercentualDescontoPadrao: "40"
+      CantinaOperacao__UrlPublicaCardapio: ${PUBLIC_URL:-http://localhost:5180}
+      WhatsApp__Provider: ${WHATSAPP_PROVIDER:-Disabled}
+      WhatsApp__EvolutionBaseUrl: ${EVOLUTION_BASE_URL:-http://evolution-api:8080}
+      WhatsApp__EvolutionInstance: ${EVOLUTION_INSTANCE:-cantina-senac}
+      WhatsApp__EvolutionApiKey: ${EVOLUTION_API_KEY:-}
+      WhatsApp__MetaPhoneNumberId: ${META_PHONE_NUMBER_ID:-}
+      WhatsApp__MetaAccessToken: ${META_ACCESS_TOKEN:-}
+
+  # Opcional: Automação WhatsApp 100% gratuita e open-source (ative com: docker compose --profile whatsapp up -d)
+  evolution-api:
+    image: atendai/evolution-api:v2.2.3
+    container_name: cantina-evolution-whatsapp
+    profiles: ["whatsapp"]
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    environment:
+      AUTHENTICATION_API_KEY: ${EVOLUTION_API_KEY:-senac_whatsapp_key}
+    volumes:
+      - evolution_instances:/evolution/instances
+
+volumes:
+  cantina_pgdata:
+  evolution_instances:

@@ -1,0 +1,29 @@
+name: CI — Build & Testes (DesperdícioZero SENAC)
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restaurar dependências NuGet
+        run: dotnet restore Projeto-Integrador-SENAC.slnx
+
+      - name: Compilar toda a solução (API + Site + WPF Desktop + Testes)
+        run: dotnet build Projeto-Integrador-SENAC.slnx --no-restore -c Release
+
+      - name: Executar suíte de testes automatizados (Domínio, Aplicação e Integração HTTP)
+        run: dotnet test tests/Cantina.Tests/Cantina.Tests.csproj --no-build -c Release --verbosity normal

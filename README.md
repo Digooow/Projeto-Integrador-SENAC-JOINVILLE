@@ -1,477 +1,415 @@
-# DesperdícioZero — Sistema da Cantina (Cardápio Antidesperdício)
+# DesperdícioZero — Ecossistema Web, Desktop & WhatsApp (Cantina ALAMO SENAC)
 
-Aplicação desktop em **C# / WPF (.NET 10)** concebida para apoiar a operação diária de cantinas escolares e pequenos comércios alimentícios, combatendo o desperdício de alimentos perecíveis ao final do expediente por meio de controle em tempo real de estoque, **queima de estoque automatizada** e divulgação ágil de ofertas por turno via WhatsApp.
+Plataforma completa em **.NET 10 (Clean Architecture)** para operação inteligente de cantinas escolares e universitárias. Combate o desperdício de alimentos perecíveis no fim do expediente e elimina filas nos intervalos conectando três pontas em tempo real:
 
-> **Status atual:** protótipo funcional acadêmico em evolução para arquitetura limpa de portfólio. O build atual é 100% compilável e executável no Windows, com histórico Git higienizado e documentação arquitetural consolidada em código.
+1. **Site Web de Pedidos "Fura-Fila" (`Cantina.Api/wwwroot`):** vitrine responsiva onde alunos e funcionários consultam o cardápio ao vivo, aproveitam ofertas antidesperdício, fazem pedidos sem cadastro obrigatório e acompanham o status de preparo pelo código de retirada (`#AL-XXXX`).
+2. **Painel Gerencial Desktop (`Cantina.Wpf`):** aplicativo Windows de balcão (inspirado no design *DesperdícioZero*) que gerencia o serviço local ou hospedado na nuvem, controla fila de pedidos, PDV rápido, estoque, promoções, fechamento diário e dispara a **Queima de Estoque das `20:45`**.
+3. **Motor Multi-Canal de WhatsApp (`SmartWhatsAppGateway`):** envia confirmações de pedido, avisos de *"Seu lanche está pronto para retirada!"* e campanhas promocionais nos grupos de turno (**SENAC Dia**, **SENAC Tarde**, **SENAC Noite**) via **Evolution API** (open-source gratuito), **Meta WhatsApp Cloud API** ou **Outbox com links `wa.me` 1-clique**.
 
 <p>
   <img src="https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet&logoColor=white" alt=".NET 10" />
-  <img src="https://img.shields.io/badge/WPF-Desktop%20Windows-0078D4?logo=windows&logoColor=white" alt="WPF" />
-  <img src="https://img.shields.io/badge/EF%20Core-9.0-512BD4" alt="Entity Framework Core 9" />
-  <img src="https://img.shields.io/badge/arquitetura-MVVM%20%E2%86%92%20Clean%20Architecture-0A66C2" alt="Arquitetura" />
-  <img src="https://img.shields.io/badge/status-em%20evolu%C3%A7%C3%A3o-yellow" alt="Status" />
+  <img src="https://img.shields.io/badge/Clean%20Architecture-7%20Projetos-0A66C2" alt="Clean Architecture" />
+  <img src="https://img.shields.io/badge/ASP.NET%20Core-Minimal%20API%20%2B%20Web-512BD4" alt="ASP.NET Core" />
+  <img src="https://img.shields.io/badge/WPF-Backoffice%20Desktop-0078D4?logo=windows&logoColor=white" alt="WPF Desktop" />
+  <img src="https://img.shields.io/badge/EF%20Core%2010-SQLite%20%7C%20PostgreSQL-336791?logo=postgresql&logoColor=white" alt="EF Core 10" />
+  <img src="https://img.shields.io/badge/WhatsApp-Evolution%20%7C%20Meta%20%7C%20wa.me-25D366?logo=whatsapp&logoColor=white" alt="WhatsApp" />
+  <img src="https://img.shields.io/badge/Testes-11%2F11%20xUnit-16A34A" alt="Testes xUnit" />
 </p>
 
 ---
 
 ## Sumário
 
-- [Contexto e Problema de Negócio](#contexto-e-problema-de-negócio)
-- [Requisitos do Sistema](#requisitos-do-sistema)
-- [Telas e Design Visual](#telas-e-design-visual)
-- [Arquitetura do Sistema](#arquitetura-do-sistema)
-- [Fluxo Operacional — Queima de Estoque (`20:45`)](#fluxo-operacional--queima-de-estoque-2045)
+- [Contexto e Proposta de Valor](#contexto-e-proposta-de-valor)
+- [Requisitos Atendidos](#requisitos-atendidos)
+- [Design Visual e Protótipos](#design-visual-e-protótipos)
+- [Arquitetura do Ecossistema](#arquitetura-do-ecossistema)
+- [Fluxo Operacional — Pedido Web, WhatsApp e Queima `20:45`](#fluxo-operacional--pedido-web-whatsapp-e-queima-2045)
 - [Modelo de Dados (MER)](#modelo-de-dados-mer)
-- [Estado Atual e Diagnóstico Técnico](#estado-atual-e-diagnóstico-técnico)
-- [Stack Tecnológica](#stack-tecnológica)
-- [Como Executar](#como-executar)
-- [Estrutura do Repositório](#estrutura-do-repositório)
-- [Roadmap de Engenharia](#roadmap-de-engenharia)
+- [Referência da API REST](#referência-da-api-rest)
+- [Como Executar Localmente](#como-executar-localmente)
+- [Hospedagem 100% Gratuita na Nuvem + WhatsApp](#hospedagem-100-gratuita-na-nuvem--whatsapp)
+- [Estrutura da Solução](#estrutura-da-solução)
 - [Equipe e Contexto Acadêmico](#equipe-e-contexto-acadêmico)
 - [Licença](#licença)
 
 ---
 
-## Contexto e Problema de Negócio
+## Contexto e Proposta de Valor
 
-O projeto nasceu a partir da observação real da rotina da **Cantina ALAMO** na **Faculdade de Tecnologia SENAC Joinville**, identificando duas dores operacionais diretas:
+Concebido a partir da operação real da **Cantina ALAMO** na **Faculdade de Tecnologia SENAC Joinville**, o sistema ataca duas dores diárias:
 
-1. **Desperdício no fim do expediente:** Salgados, assados e lanches preparados para o dia que permanecem sem venda próximo ao fechamento noturno perdem valor comercial e acabam descartados.
-2. **Atrito de filas nos intervalos:** Durante os horários de pico entre aulas, muitos alunos e funcionários desistem da compra para não aguardar vários minutos na fila.
-
-**Proposta de valor (*"Não vendeu, não desperdice — Localizamos os consumidores"*):**
-- Manter o saldo dos produtos atualizado conforme as baixas ocorrem ao longo dos turnos.
-- Próximo ao encerramento (ex.: **`20:45`**), identificar automaticamente os itens remanescentes — sem exigir contagem manual de bandejas pelos atendentes —, aplicar regras de desconto (`%` ou `R$`) e divulgar o **Cardápio Antidesperdício** nos grupos de WhatsApp de cada turno (**SENAC Dia**, **SENAC Tarde**, **SENAC Noite**), maximizando a **Receita Recuperada** e reduzindo perdas.
+- **Desperdício de perecíveis no encerramento:** salgados assados, lanches naturais e doces do dia perdem valor comercial próximo ao fim do turno noturno. Às **`20:45`** (via `QueimaEstoqueBackgroundService` ou em 1 clique pelo operador), o sistema identifica automaticamente as sobras perecíveis sem exigir recontagem manual de bandejas, aplica desconto configurável e publica o **Cardápio Antidesperdício** no site e nos grupos de WhatsApp.
+- **Filas nos intervalos de aula:** alunos pedem pelo celular em segundos, o estoque disponível já fica reservado com segurança transacional e o aluno recebe notificação no WhatsApp para passar direto na fila rápida de retirada.
 
 ---
 
-## Requisitos do Sistema
+## Requisitos Atendidos
 
-Requisitos consolidados a partir da especificação original do Projeto Integrador:
-
-### Requisitos Funcionais
-
-| Código | Requisito | Status |
+| Código | Capacidade | Implementação |
 |---|---|---|
-| **RF01** | **Gestão de Cardápio:** cadastrar, editar, buscar e excluir produtos com preço e quantidade disponível. | Implementado |
-| **RF02** | **Controle de Estoque:** realizar ajustes rápidos (`+1`, `+5`, `+10`, `-1` e lote customizado) e baixas por venda. | Parcial (ajustes prontos; venda desacoplada) |
-| **RF03** | **Motor de Descontos:** aplicar e remover descontos percentuais (`%`) ou em valor fixo (`R$`), por item ou em lote. | Implementado |
-| **RF04** | **Divulgação via WhatsApp:** gerar mensagem promocional com preços *"De / Por"* dos itens disponíveis em oferta. | Parcial (`wa.me` manual; segmentação por grupo prevista) |
-| **RF05** | **Gestão Opcional de Alunos/Clientes:** cadastrar alunos interessados sem tornar o cadastro obrigatório para participar dos grupos de oferta. | Parcial (CRUD EF Core criado; tela desconectada) |
-| **RF06** | **Queima de Estoque Automática (`20:45`):** acionar automaticamente as ofertas de fim de dia com base no saldo remanescente. | Planejado |
-| **RF07** | **Reserva Rápida ("Fura-Fila") & Balanço Diário:** permitir reserva antecipada para retirada no balcão e relatório de vendido vs. sobra / receita recuperada. | Planejado |
-
-### Requisitos Não Funcionais
-
-| Código | Requisito | Diretriz |
-|---|---|---|
-| **RNF01** | **Baixo Atrito Operacional** | O atendente da cantina não deve precisar recontar estoque manualmente para disparar a queima de fim de dia. |
-| **RNF02** | **Adoção sem Burocracia** | Alunos podem receber ofertas pelos grupos de turno no WhatsApp mesmo sem cadastro prévio individual. |
-| **RNF03** | **Integridade Transacional** | Estoque nunca pode ficar negativo; descontos nunca podem gerar preço promocional menor que zero. |
-| **RNF04** | **Execução Local Zero-Friction** | A aplicação deve rodar imediatamente em ambiente local de avaliação/desenvolvimento, com opção de banco relacional dedicado. |
-| **RNF05** | **Testabilidade e Manutenibilidade** | Regras de negócio desacopladas da interface WPF, cobertas por testes automatizados e validação em CI. |
+| **RF01** | **Cardápio Online & Gestão de Produtos** | CRUD completo no WPF sincronizado em tempo real com a vitrine web (`GET /api/v1/cardapio`). |
+| **RF02** | **Estoque com Reserva Transacional** | Separação entre `QuantidadeEstoque` (físico), `QuantidadeReservada` (pedidos ativos) e `QuantidadeDisponivel`, com trilha de auditoria (`MovimentacaoEstoque`). |
+| **RF03** | **Motor de Descontos (`%` e `R$`)** | Descontos percentuais e em valor fixo (`R$`), individuais ou em lote, com trava contra preços negativos e inclusão integral na formatação do WhatsApp. |
+| **RF04** | **Site de Pedidos Fura-Fila & Rastreamento** | Interface web moderna com carrinho, validação acessível (`:user-invalid`), `<dialog closedby="any">` e consulta ao vivo do status pelo código `#AL-XXXX`. |
+| **RF05** | **Notificações & Campanhas no WhatsApp** | Alertas individuais (*Pedido Recebido*, *Em Preparo*, *Pronto para Retirada*, *Cancelado*) e campanhas nos grupos de turno (*SENAC Dia/Tarde/Noite*). |
+| **RF06** | **Queima Automática às `20:45`** | Worker hospedado (`QueimaEstoqueBackgroundService`) operando no fuso `America/Sao_Paulo` + botão de disparo imediato no painel desktop. |
+| **RF07** | **PDV de Balcão & Fechamento Diário** | Registro rápido de venda presencial e consolidação diária separando **Receita Normal** vs. **Receita Recuperada (Meta Antidesperdício)**. |
 
 ---
 
-## Telas e Design Visual
+## Design Visual e Protótipos
 
-### 1. Protótipo Funcional Atual (WPF em Execução)
-
-| Operação Principal e Descontos (`MainWindow`) | Cadastro e Busca de Produtos (`CadastroWindow`) |
-|---|---|
-| ![Tela Principal - Controle da Cantina](docs/images/tela-principal-operacao.jpg) | ![Tela de Cadastro de Produtos](docs/images/tela-cadastro-produtos.jpg) |
-
-### 2. Design Conceitual — Interface Alvo (*DesperdícioZero*)
-
-Evolução visual projetada pela equipe para unificar os indicadores de **Receita Recuperada**, grupos de WhatsApp por turno (**SENAC Dia / Tarde / Noite**) e gestão rápida de ofertas em um único Dashboard moderno:
+### Conceito Visual *DesperdícioZero* (Implementado no Painel `Cantina.Wpf` e Vitrine Web)
 
 | Dashboard *DesperdícioZero* e Grupos por Turno | Operação de Ofertas e Meta de Receita Recuperada |
 |---|---|
 | ![Conceito Dashboard DesperdícioZero](docs/images/conceito-dashboard-desperdicio-zero.png) | ![Conceito Operação de Ofertas](docs/images/conceito-operacao-ofertas.png) |
 
+### Histórico Visual — Primeira Versão Desktop Acadêmica
+
+| Operação Inicial de Estoque e Descontos | Cadastro Inicial de Produtos |
+|---|---|
+| ![Tela Principal Original](docs/images/tela-principal-operacao.jpg) | ![Tela de Cadastro Original](docs/images/tela-cadastro-produtos.jpg) |
+
 ---
 
-## Arquitetura do Sistema
+## Arquitetura do Ecossistema
 
-### Arquitetura Atual (Protótipo MVVM)
+O projeto adota **Clean Architecture** com `TreatWarningsAsErrors=true`, desacoplando completamente o domínio das camadas de transporte HTTP, banco de dados, WhatsApp e interface desktop:
 
 ```mermaid
 flowchart LR
-    subgraph UI["Camada de Apresentação (WPF / XAML)"]
-        MW["MainWindow"]
-        CW["CadastroWindow"]
-        AW["AlunoWindow (órfã)"]
-        EW["EstoqueWindow (órfã)"]
-        CV["MoneyConverters (pt-BR)"]
+    subgraph Clientes["Canais de Acesso"]
+        Web["📱 Site Fura-Fila (Alunos)\nHTML5 + CSS Moderno + JS"]
+        Wpf["🖥️ Painel Cantina.Wpf (Balcão)\nMVVM + CommunityToolkit"]
     end
 
-    subgraph VM["ViewModels (MVVM)"]
-        MVM["MainViewModel"]
-        CVM["CadastroViewModel"]
-        AVM["AlunoViewModel"]
-        EVM["EstoqueViewModel"]
+    subgraph CloudOrLocal["Serviço Central — Cantina.Api (Local ou Nuvem Gratuita)"]
+        Api["Minimal API REST (/api/v1)\n+ Static Files (wwwroot)\n+ Filtro X-Api-Key"]
+        Worker["⏰ QueimaEstoqueBackgroundService\nGatilho Diário 20:45 BRT"]
     end
 
-    subgraph SVC["Serviços de Negócio"]
-        OPS["OperacaoProdutoService"]
-        PS["ProdutoService"]
-        ES["EstoqueService"]
-        DS["DescontoService"]
-        AS["AlunoService"]
-        MS["MensagemService"]
+    subgraph Core["Núcleo de Negócio"]
+        AppLayer["Cantina.Application\nCatalogoService • PedidoService\nGestaoCantinaService • WhatsAppFormatter"]
+        Domain["Cantina.Domain & Cantina.Contracts\nEntidades Ricas • Máquina de Estados\nDTOs Imutáveis"]
     end
 
-    subgraph DATA["Persistência e Integrações"]
-        JSON[("produtos.json (Storage local)")]
-        EF[("AppDbContext (EF Core 9 / MySQL)")]
-        WA["WhatsApp Web (link wa.me)"]
+    subgraph Infra["Cantina.Infrastructure (Adaptadores)"]
+        Ef["CantinaDbContext (EF Core 10)\nAuto-Migration & Seeder"]
+        Wa["SmartWhatsAppGateway\nEvolution API | Meta Cloud | Outbox wa.me"]
     end
 
-    MW --> MVM
-    CW --> CVM
-    AW -.-> AVM
-    EW -.-> EVM
-    UI --- CV
-
-    MVM --> OPS
-    MVM --> PS
-    MVM --> DS
-    MVM --> MS
-    CVM --> PS
-    AVM --> AS
-    EVM --> ES
-
-    OPS --> PS
-    OPS --> ES
-    OPS --> DS
-    PS --> JSON
-    AS --> EF
-    MS --> WA
-```
-
-### Arquitetura Alvo (Padrão *Clean Architecture* Multi-Projetos)
-
-```mermaid
-flowchart TD
-    subgraph Presentation["Cantina.Wpf (Apresentação Desktop)"]
-        Views["Views XAML (Dashboard DesperdícioZero)"]
-        ViewModels["ViewModels (CommunityToolkit.Mvvm)"]
+    subgraph External["Persistência & Mensageria"]
+        Db[("SQLite (Local Zero-Config)\nou PostgreSQL (Render / Neon)")]
+        Whats["💬 WhatsApp dos Alunos\n& Grupos SENAC Dia/Tarde/Noite"]
     end
 
-    subgraph Application["Cantina.Application (Casos de Uso)"]
-        UseCases["Serviços de Aplicação (PDV, Queima 20:45, Balanço)"]
-        Contracts["Interfaces, DTOs e Validações"]
-        WhatsAppFormatter["Formatador de Campanhas WhatsApp"]
-    end
-
-    subgraph Domain["Cantina.Domain (Núcleo de Negócio)"]
-        Entities["Entidades (Produto, Venda, Reserva, Campanha, Aluno, Fechamento)"]
-        Rules["Regras Financeiras, Perecibilidade e Invariantes de Estoque"]
-    end
-
-    subgraph Infrastructure["Cantina.Infrastructure (Dados e Adaptação)"]
-        DbContext["CantinaDbContext (EF Core 9 + Migrations + Seed)"]
-        SQLite[("SQLite (Padrão Zero-Friction)")]
-        MariaDB[("MariaDB / MySQL (Docker / Produção)")]
-    end
-
-    subgraph Quality["Cantina.Tests + GitHub Actions CI"]
-        Unit["Testes Unitários (xUnit)"]
-        Integ["Testes de Integração (EF Core)"]
-    end
-
-    Views --> ViewModels
-    ViewModels --> UseCases
-    UseCases --> Entities
-    UseCases --> Rules
-    UseCases --> Contracts
-    Infrastructure -.->|"Implementa"| Contracts
-    DbContext --> Entities
-    DbContext --> SQLite
-    DbContext --> MariaDB
-    Unit --> Domain
-    Unit --> Application
-    Integ --> Infrastructure
+    Web -->|"HTTPS JSON"| Api
+    Wpf -->|"HTTPS + X-Api-Key\n(ou AutoStart Local)"| Api
+    Api --> AppLayer
+    Worker --> AppLayer
+    AppLayer --> Domain
+    Infra -.->|"Implementa Abstrações"| AppLayer
+    Ef --> Db
+    Wa --> Whats
 ```
 
 ---
 
-## Fluxo Operacional — Queima de Estoque (`20:45`)
-
-O diagrama abaixo detalha o ciclo operacional diário que conecta produção, baixas por venda/reserva e disparo antidesperdício próximo ao encerramento:
+## Fluxo Operacional — Pedido Web, WhatsApp e Queima `20:45`
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Op as Operador da Cantina
-    participant Sys as Sistema DesperdícioZero
-    participant DB as Banco de Dados (EF Core)
-    participant WA as Grupos WhatsApp (Turnos SENAC)
-    actor Al as Alunos e Funcionários
+    actor Aluno as Aluno (Celular / Site)
+    participant WebApi as Cantina.Api (Site + REST)
+    participant DB as Banco (SQLite / PostgreSQL)
+    participant WA as SmartWhatsAppGateway
+    actor Balcao as Operador (Cantina.Wpf)
 
-    Op->>Sys: Registra produção / entrada do dia (Salgados, Lanches, Bebidas)
-    Sys->>DB: Grava saldo inicial e MovimentacaoEstoque (Entrada)
+    Note over WebApi,WA: 20:45 — Gatilho Automático (ou 1-clique no Desktop)
+    WebApi->>DB: Seleciona perecíveis ativos com estoque disponível > 0
+    WebApi->>DB: Aplica 40% OFF e grava log da campanha
+    WebApi->>WA: Dispara Cardápio Antidesperdício + link do site nos grupos SENAC
+    WA-->>Aluno: Recebe oferta no grupo do turno
 
-    loop Durante os turnos (Manhã, Tarde e Noite)
-        Al->>Op: Compra no balcão ou Reserva Rápida ("Fura-Fila")
-        Op->>Sys: Registra Venda / Reserva
-        Sys->>DB: Dá baixa automática no estoque e registra receita normal
-    end
+    Aluno->>WebApi: Faz pedido pelo site (POST /api/v1/pedidos)
+    WebApi->>DB: Reserva estoque disponível e gera código #AL-XXXX
+    WebApi->>WA: Envia confirmação do pedido + link de rastreamento
+    WebApi-->>Aluno: Exibe código #AL-XXXX e acompanhamento ao vivo
 
-    Note over Sys,DB: Gatilho de Queima de Estoque (20:45 ou acionamento 1-clique)
-    Sys->>DB: Consulta itens perecíveis com saldo > 0
-    Sys->>Sys: Aplica regra promocional (% ou R$) garantindo preço >= 0
-    Sys->>Op: Exibe preview da campanha e grupos-alvo ( ex.: SENAC Noite )
-    Op->>WA: Dispara Cardápio Antidesperdício formatado (De / Por + Qtd)
-    WA-->>Al: Notifica alunos presentes no campus
+    Balcao->>WebApi: Sincroniza fila (polling 6s) e clica em "✅ Pronto"
+    WebApi->>DB: Atualiza status para ProntoParaRetirada
+    WebApi->>WA: Dispara alerta WhatsApp: "Passe no balcão Fura-Fila!"
+    WA-->>Aluno: Notificação imediata no WhatsApp
 
-    Al->>Op: Adquire itens promocionais antes do fechamento
-    Op->>Sys: Registra Venda Promocional
-    Sys->>DB: Atualiza estoque e contabiliza Receita Recuperada
-
-    Op->>Sys: Executa Fechamento Diário
-    Sys->>DB: Consolida Balanço (Produzido vs. Vendido Cheio vs. Recuperado vs. Perda)
+    Aluno->>Balcao: Retira o lanche sem fila informando #AL-XXXX
+    Balcao->>WebApi: Clica em "Entregar" (Concluido)
+    WebApi->>DB: Baixa estoque físico e contabiliza Receita Recuperada
 ```
 
 ---
 
 ## Modelo de Dados (MER)
 
-Modelo Entidade-Relacionamento consolidado, evoluindo o diagrama original do MySQL Workbench para suportar persistência unificada, rastreabilidade de estoque, reservas, grupos de WhatsApp por turno e cálculo de receita recuperada:
-
 ```mermaid
 erDiagram
     CATEGORIAS ||--o{ PRODUTOS : "classifica"
-    PRODUTOS ||--o{ MOVIMENTACOES_ESTOQUE : "registra historico"
-    PRODUTOS ||--o{ ITENS_VENDA : "vendido em"
-    PRODUTOS ||--o{ RESERVAS : "reservado em"
-    PRODUTOS ||--o{ ITENS_CAMPANHA : "entra em oferta"
-    VENDAS ||--|{ ITENS_VENDA : "possui"
-    ALUNOS ||--o{ VENDAS : "compra (opcional)"
-    ALUNOS ||--o{ RESERVAS : "solicita"
-    GRUPOS_WHATSAPP ||--o{ CAMPANHAS_OFERTA : "recebe disparo"
-    GRUPOS_WHATSAPP ||--o{ ALUNOS : "agrupa por turno"
-    CAMPANHAS_OFERTA ||--|{ ITENS_CAMPANHA : "divulga"
-    USUARIOS ||--o{ MOVIMENTACOES_ESTOQUE : "opera"
-    USUARIOS ||--o{ FECHAMENTOS_DIARIOS : "encerra"
+    PRODUTOS ||--o{ ITENS_PEDIDO : "compoe"
+    PRODUTOS ||--o{ MOVIMENTACOES_ESTOQUE : "audita"
+    PEDIDOS ||--|{ ITENS_PEDIDO : "contem"
+    PEDIDOS ||--o{ NOTIFICACOES_WHATSAPP : "gera avisos"
 
     CATEGORIAS {
-        int id PK
-        string nome "Salgado, Bebida, Doce, Lanche"
-        bool perecivel_diario "Elegivel para queima 20:45"
+        int Id PK
+        string Nome
+        string IconeEmoji
+        bool PerecivelDiario
+        int OrdemExibicao
     }
 
     PRODUTOS {
-        int id PK
-        int categoria_id FK
-        string nome "varchar(100)"
-        decimal preco_custo "decimal(10,2)"
-        decimal preco_venda "decimal(10,2)"
-        decimal desconto_percentual "decimal(5,2)"
-        decimal desconto_valor "decimal(10,2)"
-        int quantidade_estoque
-        date data_validade
-        bool ativo
+        int Id PK
+        int CategoriaId FK
+        string Nome
+        string Descricao
+        decimal PrecoCusto
+        decimal PrecoVenda
+        decimal DescontoPercentual
+        decimal DescontoValor
+        int QuantidadeEstoque
+        int QuantidadeReservada
+        bool Perecivel
+        bool Ativo
     }
 
-    ALUNOS {
-        int id PK
-        int grupo_whatsapp_id FK
-        string nome "varchar(100)"
-        string email "varchar(120)"
-        string telefone_whatsapp "varchar(20)"
-        string matricula "varchar(20)"
-        string turno "Manha, Tarde, Noite"
+    PEDIDOS {
+        int Id PK
+        string CodigoRetirada UK
+        string Origem "SiteWeb | BalcaoDesktop"
+        string Status "Recebido | EmPreparo | ProntoParaRetirada | Concluido | Cancelado"
+        string NomeCliente
+        string TelefoneWhatsApp
+        string Turno
+        string FormaPagamento
+        decimal SubtotalOriginal
+        decimal DescontoTotal
+        decimal ValorTotal
+        decimal ReceitaRecuperada
+        decimal ReceitaNormal
+        datetime CriadoEm
+    }
+
+    ITENS_PEDIDO {
+        int Id PK
+        int PedidoId FK
+        int ProdutoId FK
+        string NomeProduto
+        int Quantidade
+        decimal PrecoUnitarioOriginal
+        decimal PrecoUnitarioFinal
+        bool ItemPromocional
     }
 
     GRUPOS_WHATSAPP {
-        int id PK
-        string nome "SENAC Dia, Tarde, Noite"
-        string turno_alvo
-        string link_convite
-        int estimativa_participantes
+        int Id PK
+        string Nome "SENAC Dia | Tarde | Noite"
+        string Turno
+        string LinkConvite
+        string DestinoApiJid "Opcional @g.us"
+        int ParticipantesEstimados
+        bool Ativo
     }
 
-    CAMPANHAS_OFERTA {
-        int id PK
-        int grupo_whatsapp_id FK
-        datetime criada_em
-        string mensagem_gerada
-        decimal percentual_padrao "decimal(5,2)"
+    ALUNOS {
+        int Id PK
+        string Nome
+        string Email
+        string TelefoneWhatsApp
+        string Matricula
+        string Turno
+        bool ReceberAlertasPromocao
     }
 
-    ITENS_CAMPANHA {
-        int id PK
-        int campanha_id FK
-        int produto_id FK
-        int quantidade_ofertada
-        decimal preco_original "decimal(10,2)"
-        decimal preco_promocional "decimal(10,2)"
-    }
-
-    RESERVAS {
-        int id PK
-        int aluno_id FK
-        int produto_id FK
-        int quantidade
-        decimal valor_unitario "decimal(10,2)"
-        string status "Pendente, Retirada, Expirada"
-        datetime criada_em
-    }
-
-    VENDAS {
-        int id PK
-        int aluno_id FK
-        datetime realizada_em
-        bool venda_promocional "Contabiliza Receita Recuperada"
-        decimal valor_total "decimal(10,2)"
-        decimal desconto_total "decimal(10,2)"
-    }
-
-    ITENS_VENDA {
-        int id PK
-        int venda_id FK
-        int produto_id FK
-        int quantidade
-        decimal preco_unitario_original "decimal(10,2)"
-        decimal preco_unitario_final "decimal(10,2)"
+    NOTIFICACOES_WHATSAPP {
+        int Id PK
+        int PedidoId FK
+        string Tipo
+        string Canal "EvolutionApi | MetaCloudApi | OutboxWaMeFallback"
+        string Destinatario
+        bool EnviadoAutomaticamente
+        string LinkFallbackWaMe
+        datetime CriadaEm
     }
 
     MOVIMENTACOES_ESTOQUE {
-        int id PK
-        int produto_id FK
-        int usuario_id FK
-        string tipo "Entrada, Venda, Queima, Perda, Ajuste"
-        int quantidade_delta
-        int saldo_resultante
-        string observacao
-        datetime ocorrida_em
+        int Id PK
+        int ProdutoId FK
+        string Tipo
+        int QuantidadeDelta
+        int SaldoPosterior
+        string Motivo
+        datetime OcorridaEm
     }
 
     FECHAMENTOS_DIARIOS {
-        int id PK
-        int usuario_id FK
-        date data_referencia
-        decimal receita_normal "decimal(10,2)"
-        decimal receita_recuperada "decimal(10,2)"
-        decimal custo_perdas_evitadas "decimal(10,2)"
-        int itens_vendidos_cheio
-        int itens_vendidos_oferta
-        int itens_descartados
-    }
-
-    USUARIOS {
-        int id PK
-        string nome "varchar(80)"
-        string email "varchar(100)"
-        string senha_hash
-        string perfil "Admin, Operador"
+        int Id PK
+        date DataReferencia UK
+        decimal ReceitaNormal
+        decimal ReceitaRecuperada
+        decimal DescontosConcedidos
+        int PedidosWebConcluidos
+        int VendasBalcaoConcluidas
+        int ItensSobraramEstoque
     }
 ```
 
 ---
 
-## Estado Atual e Diagnóstico Técnico
+## Referência da API REST
 
-### Evidências do Build Atual
+### Endpoints Públicos (Site de Pedidos dos Alunos)
 
-| Verificação | Status Atual |
-|---|---|
-| Target Framework | `net10.0-windows` (WPF habilitado) |
-| Compilação (`dotnet build`) | Sucesso (`0` erros) |
-| Persistência de Produtos | Arquivo local `produtos.json` (`Services/Storage.cs`) |
-| Persistência de Alunos | MariaDB/MySQL via EF Core 9 (`Data/AppDbContext.cs`) |
-| Integração WhatsApp | Abertura de URL `https://wa.me/?text=...` com mensagem codificada |
-| Higiene de Versionamento | Histórico Git limpo (sem `bin/`, `obj/`, `.vs/`, `*.user` ou binários Office) |
-
-### Pontos Técnicos Mapeados para Refatoração (Próxima Fase)
-
-1. **Unificação da Persistência:** Migrar `ProdutoService` do `produtos.json` para o EF Core, adotando **SQLite por padrão** (execução imediata sem servidor externo) e mantendo compatibilidade configurável com **MariaDB/MySQL**.
-2. **Conexão das Telas Órfãs e Novo Dashboard:** Integrar os fluxos de `AlunoWindow` e `EstoqueWindow` (registro de vendas) dentro do novo Dashboard inspirado no conceito visual *DesperdícioZero*.
-3. **Correção do Filtro de Promoções no WhatsApp:** Em `MensagemService`, incluir produtos com desconto fixo em reais (`DescontoValor > 0`, e não apenas `Desconto > 0`) e formatar valores com moeda `pt-BR` (`C2`).
-4. **Injeção de Dependência e MVVM Puro:** Remover instanciações diretas (`new DescontoService()`, `new CadastroWindow(...)`, `MessageBox.Show`) de dentro das ViewModels, corrigir registros duplicados em `App.xaml.cs` e externalizar strings de conexão em `appsettings.json`.
-5. **Suíte de Testes e CI:** Adicionar projetos `xUnit` cobrindo regras de desconto, estoque, queima das `20:45`, formatação de mensagens e persistência EF Core, executados via GitHub Actions.
-
----
-
-## Stack Tecnológica
-
-| Camada | Tecnologia Atual | Evolução Planejada |
+| Método | Rota | Descrição |
 |---|---|---|
-| **Runtime & Linguagem** | C# / .NET 10 | C# 14 / .NET 10 com Nullable & Analyzers estritos |
-| **Interface Desktop** | WPF / XAML + MVVM manual | WPF moderno (tema *DesperdícioZero*) + `CommunityToolkit.Mvvm` |
-| **Injeção de Dependência** | `Microsoft.Extensions.DependencyInjection` | `Microsoft.Extensions.Hosting` + `appsettings.json` |
-| **ORM & Banco de Dados** | EF Core 9 + Pomelo MySQL + `System.Text.Json` | EF Core 9 unificado (SQLite padrão + MariaDB/MySQL via Docker) |
-| **Qualidade & CI/CD** | Validação manual | `xUnit`, `FluentAssertions`, testes de integração e GitHub Actions |
+| `GET` | `/` | Interface web responsiva de pedidos e rastreamento Fura-Fila. |
+| `GET` | `/health` | Health check para monitoramento e plataformas cloud. |
+| `GET` | `/api/v1/cardapio` | Cardápio ativo, ofertas do momento, categorias e grupos de WhatsApp. |
+| `POST` | `/api/v1/pedidos` | Cria pedido web, reserva estoque e aciona confirmação via WhatsApp. |
+| `GET` | `/api/v1/pedidos/{codigo}` | Consulta status atualizado do pedido pelo código (ex.: `AL-7K9P`). |
+
+### Endpoints do Backoffice (`/api/v1/gestao/*` — protegidos por `X-Api-Key` em produção)
+
+| Método | Rota | Descrição |
+|---|---|---|
+| `GET` | `/api/v1/gestao/dashboard` | KPIs em tempo real, `% Meta Receita Recuperada`, ofertas e top clientes. |
+| `GET / POST` | `/api/v1/gestao/produtos` | Lista todos os itens ou cadastra novo produto no cardápio. |
+| `PUT / DELETE` | `/api/v1/gestao/produtos/{id}` | Atualiza dados do produto ou remove/inativa com segurança referencial. |
+| `PATCH` | `/api/v1/gestao/produtos/{id}/estoque` | Reposição ou ajuste manual auditado de estoque. |
+| `POST / DELETE` | `/api/v1/gestao/produtos/{id}/desconto` | Aplica ou remove promoção (`%` ou `R$`) em produto específico. |
+| `POST / DELETE` | `/api/v1/gestao/produtos/descontos-lote` | Aplica ou encerra descontos em lote no catálogo. |
+| `POST` | `/api/v1/gestao/queima-estoque` | Executa a Queima de Estoque (`20:45`) e dispara campanha no WhatsApp. |
+| `GET` | `/api/v1/gestao/pedidos` | Fila ativa (`?apenasFila=true`) ou histórico completo de pedidos. |
+| `POST` | `/api/v1/gestao/pedidos/venda-balcao` | Registra venda presencial rápida (PDV) com baixa imediata. |
+| `PATCH` | `/api/v1/gestao/pedidos/{id}/status` | Avança status (`EmPreparo`, `ProntoParaRetirada`, `Concluido`, `Cancelado`) e notifica aluno. |
+| `GET / POST / PUT` | `/api/v1/gestao/grupos-whatsapp` | Gerencia grupos de WhatsApp por turno e IDs `@g.us`. |
+| `GET / POST / DELETE` | `/api/v1/gestao/alunos` | Cadastro opcional de alunos para avisos promocionais. |
+| `GET` | `/api/v1/gestao/notificacoes-whatsapp` | Auditoria de mensagens enviadas e links `wa.me` 1-clique. |
+| `GET` | `/api/v1/gestao/movimentacoes-estoque` | Histórico auditável de entradas, reservas, vendas e estornos. |
+| `GET / POST` | `/api/v1/gestao/fechamentos` | Consolida e consulta fechamentos diários de caixa e antidesperdício. |
 
 ---
 
-## Como Executar
+## Como Executar Localmente
 
 ### Pré-requisitos
 
-- **Windows 10/11**
-- **.NET SDK 10.0** ou superior
-- *(Opcional no estado atual)* MariaDB/MySQL local caso deseje testar o repositório `AlunoService` via EF Core
+- **.NET SDK 10.0+**
+- **Windows 10/11** (para abrir o cliente desktop `Cantina.Wpf`; a API + Site rodam em Windows, Linux, macOS e Docker).
 
-### Passo a Passo
+### Opção 1 — Experiência Integrada (Desktop + Site + Banco SQLite Automático)
+
+Ao abrir o aplicativo Desktop no modo padrão (`AutoStartLocalServer: true`), ele verifica se o servidor local já está ativo e, caso não esteja, **sobe automaticamente o site e a API em `http://localhost:5180`** já populados com dados reais da Cantina ALAMO:
 
 ```powershell
-# 1. Restaurar pacotes e compilar a solução
-dotnet restore
-dotnet build
-
-# 2. Executar a aplicação WPF
-dotnet run
+dotnet run --project src/Cantina.Wpf/Cantina.Wpf.csproj
 ```
 
-> **Nota sobre banco de dados no estado atual:** A tela principal de produtos e descontos funciona imediatamente utilizando `produtos.json` gerado em tempo de execução (ignorado pelo Git). Para aplicar a migration inicial no MariaDB/MySQL local (`ProjetoIntegradorSENAC`):
-> ```powershell
-> dotnet ef database update
-> ```
+No próprio painel lateral do aplicativo, clique em **"🌐 Abrir Site de Pedidos"** (ou acesse http://localhost:5180 no navegador/celular na mesma rede) para simular um pedido como aluno e vê-lo entrar ao vivo na aba **"Fila Web & PDV"**!
+
+### Opção 2 — Executar Apenas o Servidor Web + API (ou via Docker)
+
+```powershell
+# Direto via .NET CLI (SQLite zero-config)
+dotnet run --project src/Cantina.Api/Cantina.Api.csproj --urls=http://localhost:5180
+
+# Ou com PostgreSQL via Docker Compose
+docker compose up --build -d
+```
+
+### Executar os Testes Automatizados
+
+```powershell
+dotnet build Projeto-Integrador-SENAC.slnx -c Release
+dotnet test tests/Cantina.Tests/Cantina.Tests.csproj -c Release
+```
 
 ---
 
-## Estrutura do Repositório
+## Hospedagem 100% Gratuita na Nuvem + WhatsApp
+
+A arquitetura foi preparada para operar com **custo R\$ 0,00/mês**, permitindo que os alunos façam pedidos pela internet de qualquer lugar enquanto o computador da cantina gerencia tudo pelo aplicativo Desktop Windows.
+
+### Passo 1 — Publicar o Site e a API Gratuitamente (Render.com Blueprint)
+
+O repositório já inclui o arquivo `render.yaml` configurado com Docker + PostgreSQL gratuito:
+
+1. Faça push deste repositório para o seu GitHub.
+2. Crie uma conta gratuita em https://render.com e clique em **New + → Blueprint**.
+3. Selecione o repositório `Projeto-Integrador-SENAC-JOINVILLE` e clique em **Apply**.
+4. O Render criará automaticamente:
+   - O banco PostgreSQL gratuito `cantina-alamo-db` (injetando `DATABASE_URL`).
+   - O serviço web `https://cantina-alamo-senac.onrender.com` com HTTPS automático.
+   - A chave secreta `Security__AdminApiKey` (copie o valor gerado na aba *Environment* do Render).
+
+> **Alternativa gratuita sem hibernação de banco:** você também pode usar um banco PostgreSQL gratuito na **Neon.tech** ou **Supabase**, colando apenas a string `postgres://...` na variável `DATABASE_URL` no Render, Fly.io ou Koyeb.
+
+### Passo 2 — Conectar o Aplicativo Desktop da Cantina à Nuvem
+
+1. Abra o `Cantina.Wpf` no computador da cantina.
+2. Acesse a aba **"☁️ Fechamento & Nuvem"**.
+3. Em **URL Base da API & Site de Pedidos**, informe a URL pública (ex.: `https://cantina-alamo-senac.onrender.com`).
+4. Em **Chave `X-Api-Key` do Backoffice**, cole a chave `Security__AdminApiKey` gerada no Render.
+5. Clique em **"🔌 Salvar & Reconectar"**. Pronto: todos os pedidos feitos pelos alunos no site aparecerão instantaneamente no computador da cantina!
+
+### Passo 3 — Escolher o Modo de Integração com WhatsApp
+
+Configure as variáveis `WhatsApp__*` (veja `.env.example`):
+
+| Modo (`WhatsApp__Provider`) | Custo | Como Funciona |
+|---|---|---|
+| **`Disabled` (Padrão Outbox + `wa.me`)** | **R\$ 0** | Zero configuração externa. Gera links `https://wa.me/5547...` prontos no site e no painel WPF para notificar o aluno em 1 clique no WhatsApp Web/Desktop. |
+| **`EvolutionApi` (Recomendado para Grupos + Alunos)** | **R\$ 0** | Suba com `docker compose --profile whatsapp up -d`, escaneie o QR Code do WhatsApp da cantina e o servidor enviará mensagens **100% automáticas** tanto para o WhatsApp individual dos alunos quanto para os grupos de turno (`@g.us`) às `20:45`. |
+| **`MetaCloudApi` (API Oficial Meta)** | **Cota gratuita Meta** | Usa o *WhatsApp Business Cloud API* oficial da Meta (`MetaPhoneNumberId` + `MetaAccessToken`) para envio automático individual em nuvem sem precisar manter celular conectado. |
+
+---
+
+## Estrutura da Solução
 
 ```text
 Projeto-Integrador-SENAC/
-├── Converters/                  # Conversores monetários (estilo maquininha pt-BR)
-├── Data/                        # AppDbContext e fábrica design-time do EF Core
-├── Migrations/                  # Migrações do banco de dados
-├── Models/                      # Entidades Produto e Aluno
-├── Services/                    # Regras de produtos, estoque, descontos e WhatsApp
-├── ViewModels/                  # Estado das telas, bindings e RelayCommand
-├── Views/                       # Janelas XAML (MainWindow, Cadastro, Estoque, Aluno)
-├── docs/
-│   └── images/                  # Screenshots reais da aplicação e mockups de UI
-├── .gitignore                   # Padrão oficial .NET + regras para .env, DBs e Office
-├── App.xaml / App.xaml.cs       # Bootstrap da aplicação, cultura pt-BR e container DI
-├── Projeto-Integrador-SENAC.csproj
-├── Projeto-Integrador-SENAC.slnx
+├── .github/workflows/ci.yml         # Pipeline CI compilando API, WPF e rodando xUnit
+├── docs/images/                     # Mockups DesperdícioZero e capturas de tela
+├── src/
+│   ├── Cantina.Domain/              # Entidades ricas, enums e invariantes de negócio
+│   ├── Cantina.Contracts/           # DTOs e contratos HTTP compartilhados (Web/API/WPF)
+│   ├── Cantina.Application/         # Casos de uso, formatador WhatsApp e abstrações
+│   ├── Cantina.Infrastructure/      # EF Core 10 (SQLite + PostgreSQL), Seeder e SmartWhatsAppGateway
+│   ├── Cantina.Api/                 # Minimal API REST, Worker 20:45 e Site Web em wwwroot/
+│   └── Cantina.Wpf/                 # Painel Gerencial Desktop Windows (MVVM DesperdícioZero)
+├── tests/
+│   └── Cantina.Tests/               # Testes unitários e de integração HTTP (WebApplicationFactory)
+├── .env.example                     # Modelo documentado de variáveis de ambiente
+├── .gitignore                       # Padrão .NET + proteção de secrets, bancos locais e binários
+├── Directory.Build.props            # Padronização C# e TreatWarningsAsErrors=true
+├── Dockerfile                       # Build multi-stage otimizado para nuvem gratuita
+├── docker-compose.yml               # PostgreSQL + Cantina.Api + Evolution API opcional
+├── Projeto-Integrador-SENAC.slnx    # Solução .NET 10 multi-projetos
+├── render.yaml                      # Blueprint 1-clique para hospedagem gratuita no Render.com
 └── README.md
 ```
 
 ---
 
-## Roadmap de Engenharia
-
-- [x] **Fase 1 — Higiene de Repositório & Documentação Viva:** limpeza completa do histórico Git, `.gitignore` oficial de C#/.NET, diagramas arquiteturais/MER em Mermaid e galeria visual em `docs/images/`.
-- [ ] **Fase 2 — Clean Architecture & Persistência Unificada:** separação em `Domain`, `Application`, `Infrastructure` e `Wpf`, eliminando o `produtos.json` em favor de EF Core com SQLite (*zero-friction*) + suporte a MariaDB/Docker.
-- [ ] **Fase 3 — Domínio Completo (*DesperdícioZero*):** vendas/PDV, reservas rápidas, motor automático de queima às `20:45`, grupos de WhatsApp por turno e balanço diário de receita recuperada.
-- [ ] **Fase 4 — Interface Moderna WPF:** implementação do Dashboard *DesperdícioZero* unificando todas as telas e indicadores.
-- [ ] **Fase 5 — Testes Automatizados & CI:** suíte de testes unitários e de integração (`xUnit`) + workflow de integração contínua no GitHub Actions.
-
----
-
 ## Equipe e Contexto Acadêmico
 
-Projeto Integrador desenvolvido no **Programa Jovem Programador — Desenvolvedor de Sistemas** da **Faculdade de Tecnologia SENAC Joinville**:
+Projeto Integrador concebido no **Programa Jovem Programador — Desenvolvedor de Sistemas** da **Faculdade de Tecnologia SENAC Joinville** e evoluído para arquitetura completa de produção:
 
 - **Alan Alexis Marin Benitez** — Modelagem e Banco de Dados
 - **Matheus Souza** — Documentação e Requisitos
 - **Maurício de Souza Sant'anna** — Coordenação de Equipe e Apresentação
-- **Rodrigo da Cruz Godinho** — Arquitetura, Interface WPF e Evolução de Engenharia
+- **Rodrigo da Cruz Godinho** — Arquitetura Clean, API Web, Integração WhatsApp e Painel WPF
 - **Orientação:** Prof. Marcelo
 
 ---

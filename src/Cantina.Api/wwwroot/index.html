@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DesperdícioZero — Cardápio Digital &amp; Fura-Fila | Cantina ALAMO</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true">🍴</div>
+        <div>
+          <span class="brand-badge">DesperdícioZero • Fura-Fila</span>
+          <h1 id="cantinaNome">Cantina ALAMO — SENAC Joinville</h1>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <button type="button" id="btnAbrirRastreador" class="btn-secondary">
+          🔎 Acompanhar Pedido
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <section class="hero-card" aria-label="Status das ofertas antidesperdício">
+      <div class="hero-text">
+        <div id="badgeQueima" class="status-pill">
+          ⏰ Queima automática diária às <strong id="horarioQueimaTexto">20:45</strong>
+        </div>
+        <h2>Peça pelo site, pule a fila do intervalo e ajude a zerar o desperdício!</h2>
+        <p>
+          Escolha seu lanche com estoque atualizado em tempo real, reserve agora e receba
+          um aviso no <strong>WhatsApp</strong> assim que estiver pronto no balcão.
+        </p>
+
+        <div class="whatsapp-groups" id="gruposContainer" aria-label="Grupos de ofertas no WhatsApp">
+          <!-- Preenchido dinamicamente -->
+        </div>
+      </div>
+
+      <div class="hero-highlight">
+        <div class="stat-circle">
+          <span class="stat-icon" aria-hidden="true">🌱</span>
+          <strong id="contadorOfertasHero">0</strong>
+          <span>ofertas ativas agora</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="toolbar" aria-label="Filtros do cardápio">
+      <div class="category-pills" id="categoriasContainer" role="tablist">
+        <!-- Pílulas de categorias -->
+      </div>
+
+      <div class="search-box">
+        <label for="campoBusca" class="sr-only">Buscar produto no cardápio</label>
+        <input
+          type="search"
+          id="campoBusca"
+          placeholder="Buscar coxinha, dogão, suco..."
+          autocomplete="off" />
+      </div>
+    </section>
+
+    <section aria-live="polite">
+      <div id="catalogoGrid" class="product-grid">
+        <!-- Cards de produtos -->
+      </div>
+    </section>
+  </main>
+
+  <aside id="barraSacola" class="cart-bar" hidden>
+    <div class="container cart-bar-inner">
+      <div class="cart-summary">
+        <strong id="sacolaResumoItens">0 itens</strong>
+        <span id="sacolaResumoValores">Total: R$ 0,00</span>
+      </div>
+      <button type="button" id="btnFinalizarSacola" class="btn-primary">
+        Finalizar Pedido Fura-Fila →
+      </button>
+    </div>
+  </aside>
+
+  <!-- Modal Checkout Fura-Fila com light-dismiss declarativo (closedby="any") -->
+  <dialog id="checkoutDialog" closedby="any" aria-labelledby="checkoutTitle" class="modal-dialog">
+    <div class="modal-surface">
+      <div class="modal-header">
+        <h2 id="checkoutTitle">🛒 Finalizar Pedido Fura-Fila</h2>
+        <button type="button" class="btn-icon-close" data-close-dialog="checkoutDialog" aria-label="Fechar janela">✕</button>
+      </div>
+
+      <div id="itensSacolaLista" class="cart-items-list"></div>
+
+      <div class="cart-totals-box" id="totaisSacolaBox"></div>
+
+      <form id="formPedido">
+        <div class="field">
+          <label for="clienteNome">Seu Nome Completo *</label>
+          <span id="nome-hint" class="hint">Como devemos chamar você na retirada do balcão.</span>
+          <input
+            type="text"
+            id="clienteNome"
+            name="nomeCliente"
+            required
+            minlength="3"
+            maxlength="100"
+            autocomplete="name"
+            aria-describedby="nome-hint"
+            aria-errormessage="nome-error" />
+          <div id="nome-error" class="error-msg">
+            <span aria-hidden="true">❌</span> Informe seu nome (mínimo de 3 caracteres).
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="clienteWhatsApp">WhatsApp com DDD (para aviso de pedido pronto) *</label>
+          <span id="whats-hint" class="hint">Formato: 47999998888 (apenas números ou com DDD).</span>
+          <input
+            type="tel"
+            id="clienteWhatsApp"
+            name="telefoneWhatsApp"
+            required
+            inputmode="tel"
+            autocomplete="tel"
+            pattern="[\d\s\(\)\-\+]{10,20}"
+            aria-describedby="whats-hint"
+            aria-errormessage="whats-error" />
+          <div id="whats-error" class="error-msg">
+            <span aria-hidden="true">❌</span> Informe um WhatsApp válido com DDD (ex.: 47991234567).
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label for="clienteTurno">Turno no SENAC</label>
+            <select id="clienteTurno" name="turno">
+              <option value="Manha">SENAC Dia / Manhã</option>
+              <option value="Tarde">SENAC Tarde</option>
+              <option value="Noite" selected>SENAC Noite</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="clientePagamento">Pagamento</label>
+            <select id="clientePagamento" name="formaPagamento">
+              <option value="PixNaRetirada">PIX na Retirada</option>
+              <option value="PixCopiaECola">PIX Antecipado</option>
+              <option value="CartaoNoBalcao">Cartão no Balcão</option>
+              <option value="DinheiroNoBalcao">Dinheiro</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="clienteMatricula">Matrícula SENAC (Opcional)</label>
+          <span id="mat-hint" class="hint">Opcional — não é obrigatório ter cadastro para pedir.</span>
+          <input
+            type="text"
+            id="clienteMatricula"
+            name="matricula"
+            maxlength="30"
+            aria-describedby="mat-hint" />
+        </div>
+
+        <div class="field">
+          <label for="clienteObs">Observações (Opcional)</label>
+          <input
+            type="text"
+            id="clienteObs"
+            name="observacoes"
+            maxlength="200"
+            placeholder="Ex.: Retiro no intervalo das 20h30, sem batata palha..." />
+        </div>
+
+        <div id="erroEnvioPedido" class="alert-error" hidden></div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-close-dialog="checkoutDialog">Continuar escolhendo</button>
+          <button type="submit" id="btnEnviarPedido" class="btn-primary">Confirmar Reserva Sem Fila</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Modal Acompanhamento de Pedido em Tempo Real (closedby="any") -->
+  <dialog id="trackerDialog" closedby="any" aria-labelledby="trackerTitle" class="modal-dialog">
+    <div class="modal-surface">
+      <div class="modal-header">
+        <h2 id="trackerTitle">🔎 Acompanhar Pedido em Tempo Real</h2>
+        <button type="button" class="btn-icon-close" data-close-dialog="trackerDialog" aria-label="Fechar janela">✕</button>
+      </div>
+
+      <form id="formBuscaCodigo" class="tracker-search">
+        <label for="inputCodigoPedido" class="sr-only">Código de retirada do pedido</label>
+        <input
+          type="text"
+          id="inputCodigoPedido"
+          placeholder="Digite seu código (ex.: AL-4F8P)"
+          required />
+        <button type="submit" class="btn-primary">Consultar</button>
+      </form>
+
+      <div id="resultadoTracker" class="tracker-result">
+        <p class="muted-center">Informe o código recebido ao finalizar seu pedido.</p>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="/app.js"></script>
+</body>
+</html>

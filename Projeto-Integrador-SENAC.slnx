@@ -1,3 +1,13 @@
 <Solution>
-  <Project Path="Projeto-Integrador-SENAC.csproj" />
+  <Folder Name="/src/">
+    <Project Path="src/Cantina.Domain/Cantina.Domain.csproj" />
+    <Project Path="src/Cantina.Contracts/Cantina.Contracts.csproj" />
+    <Project Path="src/Cantina.Application/Cantina.Application.csproj" />
+    <Project Path="src/Cantina.Infrastructure/Cantina.Infrastructure.csproj" />
+    <Project Path="src/Cantina.Api/Cantina.Api.csproj" />
+    <Project Path="src/Cantina.Wpf/Cantina.Wpf.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Cantina.Tests/Cantina.Tests.csproj" />
+  </Folder>
 </Solution>
