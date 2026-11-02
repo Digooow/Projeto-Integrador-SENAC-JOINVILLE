@@ -14,7 +14,9 @@ public sealed partial class MainDashboardViewModel : ObservableObject, IDisposab
 {
     private readonly CantinaApiClient _api;
     private readonly CantinaWpfSettings _settings;
+    private readonly AppUpdateService _updateService;
     private readonly DispatcherTimer _pollTimer;
+    private AppUpdateCheckResult? _ultimoCheckUpdate;
     private bool _sincronizando;
 
     private static readonly CultureInfo PtBr = new("pt-BR");
@@ -155,20 +157,31 @@ public sealed partial class MainDashboardViewModel : ObservableObject, IDisposab
     [ObservableProperty] private string _formAlunoTurno = "Noite";
     [ObservableProperty] private bool _formAlunoAlertas = true;
 
-    // Fechamento Diário & Servidor Nuvem
+    // Fechamento Diário, Servidor Nuvem & Auto-Update OTA
     [ObservableProperty] private string _observacoesFechamentoInput = string.Empty;
     [ObservableProperty] private string _apiBaseUrlConfig;
     [ObservableProperty] private string _adminApiKeyConfig;
     [ObservableProperty] private bool _autoStartLocalConfig;
+    [ObservableProperty] private string _updateRepositoryUrlConfig;
+    [ObservableProperty] private string _versaoInstaladaTexto = $"v{AppUpdateService.CurrentVersion}";
+    [ObservableProperty] private string _statusAtualizacaoTexto = $"Versão instalada v{AppUpdateService.CurrentVersion} • Canal OTA GitHub Releases pronto.";
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(VisibilidadeBotaoInstalarUpdate))]
+    private bool _atualizacaoDisponivel;
+
+    public Visibility VisibilidadeBotaoInstalarUpdate =>
+        AtualizacaoDisponivel ? Visibility.Visible : Visibility.Collapsed;
 
     public MainDashboardViewModel(CantinaApiClient api, CantinaWpfSettings settings)
     {
         _api = api;
         _settings = settings;
+        _updateService = new AppUpdateService(settings);
 
         _apiBaseUrlConfig = settings.ApiBaseUrl;
         _adminApiKeyConfig = settings.AdminApiKey;
         _autoStartLocalConfig = settings.AutoStartLocalServer;
+        _updateRepositoryUrlConfig = settings.UpdateRepositoryUrl;
 
         _pollTimer = new DispatcherTimer
         {
@@ -736,13 +749,14 @@ public sealed partial class MainDashboardViewModel : ObservableObject, IDisposab
     {
         if (string.IsNullOrWhiteSpace(ApiBaseUrlConfig))
         {
-            MostrarErro("Informe a URL do servidor local ou na nuvem (ex.: https://cantina-senac.onrender.com).");
+            MostrarErro("Informe a URL do servidor local ou na nuvem (ex.: https://cantina-alamo-senac.onrender.com).");
             return;
         }
 
         _settings.ApiBaseUrl = ApiBaseUrlConfig.Trim().TrimEnd('/');
         _settings.AdminApiKey = AdminApiKeyConfig.Trim();
         _settings.AutoStartLocalServer = AutoStartLocalConfig;
+        _settings.UpdateRepositoryUrl = UpdateRepositoryUrlConfig.Trim().TrimEnd('/');
         _settings.Save();
         _api.UpdateSettings(_settings);
 
@@ -751,6 +765,74 @@ public sealed partial class MainDashboardViewModel : ObservableObject, IDisposab
             await CarregarDadosRemotosAsync();
             MostrarSucesso($"Conectado com sucesso ao servidor {_settings.ApiBaseUrl}!");
         });
+    }
+
+    [RelayCommand]
+    private async Task UsarServidorNuvemRenderAsync()
+    {
+        ApiBaseUrlConfig = string.IsNullOrWhiteSpace(_settings.CloudApiUrl)
+            ? "https://cantina-alamo-senac.onrender.com"
+            : _settings.CloudApiUrl;
+        await SalvarConfiguracaoServidorAsync();
+    }
+
+    [RelayCommand]
+    private async Task UsarServidorLocalAsync()
+    {
+        ApiBaseUrlConfig = "http://localhost:5180";
+        AutoStartLocalConfig = true;
+        await SalvarConfiguracaoServidorAsync();
+    }
+
+    [RelayCommand]
+    private async Task VerificarAtualizacaoAsync()
+    {
+        await ExecutarAcaoSeguraAsync(async () =>
+        {
+            _settings.UpdateRepositoryUrl = UpdateRepositoryUrlConfig.Trim().TrimEnd('/');
+            _settings.Save();
+
+            var check = await _updateService.CheckForUpdatesAsync();
+            _ultimoCheckUpdate = check;
+            AtualizacaoDisponivel = check.UpdateAvailable;
+            StatusAtualizacaoTexto = check.StatusMessage;
+
+            if (check.UpdateAvailable)
+            {
+                MostrarSucesso(check.StatusMessage);
+            }
+            else
+            {
+                MostrarSucesso($"Verificação concluída: {check.StatusMessage}");
+            }
+        });
+    }
+
+    [RelayCommand]
+    private async Task InstalarAtualizacaoAsync()
+    {
+        await ExecutarAcaoSeguraAsync(async () =>
+        {
+            var check = _ultimoCheckUpdate ?? await _updateService.CheckForUpdatesAsync();
+            var msg = await _updateService.DownloadAndApplyUpdateAsync(check);
+            StatusAtualizacaoTexto = msg;
+            MostrarSucesso(msg);
+        });
+    }
+
+    [RelayCommand]
+    private void InstalarAtalhosNoComputador()
+    {
+        try
+        {
+            var pasta = AppUpdateService.InstallToLocalMachineAndCreateShortcuts();
+            StatusAtualizacaoTexto = $"Instalado localmente em {pasta} com atalhos na Área de Trabalho e Menu Iniciar.";
+            MostrarSucesso("Programa instalado no computador! Atalhos criados na Área de Trabalho e no Menu Iniciar.");
+        }
+        catch (Exception ex)
+        {
+            MostrarErro($"Falha ao criar instalação local: {ex.Message}");
+        }
     }
 
     [RelayCommand]
@@ -843,5 +925,6 @@ public sealed partial class MainDashboardViewModel : ObservableObject, IDisposab
     public void Dispose()
     {
         _pollTimer.Stop();
+        _updateService.Dispose();
     }
 }

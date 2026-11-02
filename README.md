@@ -20,6 +20,9 @@ Plataforma completa em **.NET 10 (Clean Architecture)** para operação intelige
 > - **Site Web Fura-Fila (Alunos):** [https://cantina-alamo-senac.onrender.com](https://cantina-alamo-senac.onrender.com)
 > - **API REST & Cardápio Público (JSON):** [https://cantina-alamo-senac.onrender.com/api/v1/cardapio](https://cantina-alamo-senac.onrender.com/api/v1/cardapio)
 > - **Monitoramento & Health Check:** [https://cantina-alamo-senac.onrender.com/health](https://cantina-alamo-senac.onrender.com/health)
+> - **Instalador Desktop Admin + Auto-Update OTA:** [GitHub Releases (`CantinaAlamo-win-Setup.exe`)](https://github.com/Digooow/Projeto-Integrador-SENAC-JOINVILLE/releases)
+> - **Guia Mestre do Front-End & Design System:** [`docs/FRONTEND_DESIGN_AND_ARCHITECTURE.md`](docs/FRONTEND_DESIGN_AND_ARCHITECTURE.md)
+> - **Contrato Multi-Agente para IAs:** [`AGENTS.md`](AGENTS.md)
 > - **Painel de Controle dos Serviços no Render:** [https://dashboard.render.com](https://dashboard.render.com)
 > - **Repositório GitHub:** [https://github.com/Digooow/Projeto-Integrador-SENAC-JOINVILLE](https://github.com/Digooow/Projeto-Integrador-SENAC-JOINVILLE)
 > - **Pipeline CI/CD (GitHub Actions):** [https://github.com/Digooow/Projeto-Integrador-SENAC-JOINVILLE/actions](https://github.com/Digooow/Projeto-Integrador-SENAC-JOINVILLE/actions)
@@ -414,24 +417,32 @@ Configure as variáveis `WhatsApp__*` (veja `.env.example`):
 
 ```text
 Projeto-Integrador-SENAC/
-├── .github/workflows/ci.yml         # Pipeline CI compilando API, WPF e rodando xUnit
-├── docs/images/                     # Mockups DesperdícioZero e capturas de tela
+├── .github/workflows/
+│   ├── ci.yml                               # Pipeline CI compilando API, WPF e rodando xUnit
+│   └── release-desktop.yml                  # Build automático do instalador Windows + Feed OTA (Velopack)
+├── docs/
+│   ├── FRONTEND_DESIGN_AND_ARCHITECTURE.md  # Guia Mestre: Design System "Alamo Fresh" + 4 Camadas Front-End
+│   └── images/                              # Mockups DesperdícioZero e capturas de tela
+├── scripts/
+│   └── pack-installer.ps1                   # Gera o instalador CantinaAlamo-win-Setup.exe e pacote portátil
 ├── src/
-│   ├── Cantina.Domain/              # Entidades ricas, enums e invariantes de negócio
-│   ├── Cantina.Contracts/           # DTOs e contratos HTTP compartilhados (Web/API/WPF)
-│   ├── Cantina.Application/         # Casos de uso, formatador WhatsApp e abstrações
-│   ├── Cantina.Infrastructure/      # EF Core 10 (SQLite + PostgreSQL), Seeder e SmartWhatsAppGateway
-│   ├── Cantina.Api/                 # Minimal API REST, Worker 20:45 e Site Web em wwwroot/
-│   └── Cantina.Wpf/                 # Painel Gerencial Desktop Windows (MVVM DesperdícioZero)
+│   ├── Cantina.Domain/                      # Entidades ricas, enums e invariantes de negócio
+│   ├── Cantina.Contracts/                   # DTOs e contratos HTTP compartilhados (Web/API/WPF)
+│   ├── Cantina.Application/                 # Casos de uso, formatador WhatsApp e abstrações
+│   ├── Cantina.Infrastructure/              # EF Core 10 (SQLite + PostgreSQL), Seeder e SmartWhatsAppGateway
+│   ├── Cantina.Api/                         # Minimal API REST, Worker 20:45 e Vitrine Foodtech em wwwroot/
+│   ├── Cantina.Wpf/                         # Programa Desktop Instalável com Auto-Update OTA (AppUpdateService)
+│   └── cantina-web/                         # Workspace Angular 19+ (4 Camadas: Core, State Signals, UI, Features)
 ├── tests/
-│   └── Cantina.Tests/               # Testes unitários e de integração HTTP (WebApplicationFactory)
-├── .env.example                     # Modelo documentado de variáveis de ambiente
-├── .gitignore                       # Padrão .NET + proteção de secrets, bancos locais e binários
-├── Directory.Build.props            # Padronização C# e TreatWarningsAsErrors=true
-├── Dockerfile                       # Build multi-stage otimizado para nuvem gratuita
-├── docker-compose.yml               # PostgreSQL + Cantina.Api + Evolution API opcional
-├── Projeto-Integrador-SENAC.slnx    # Solução .NET 10 multi-projetos
-├── render.yaml                      # Blueprint 1-clique para hospedagem gratuita no Render.com
+│   └── Cantina.Tests/                       # Testes unitários e de integração HTTP (WebApplicationFactory)
+├── AGENTS.md                                # Contrato de engenharia para colaboração entre múltiplas IAs
+├── .env.example                             # Modelo documentado de variáveis de ambiente
+├── .gitignore                               # Padrão .NET + proteção de secrets, bancos locais e binários
+├── Directory.Build.props                    # Padronização C# e TreatWarningsAsErrors=true
+├── Dockerfile                               # Build multi-stage otimizado para nuvem gratuita
+├── docker-compose.yml                       # PostgreSQL + Cantina.Api + Evolution API opcional
+├── Projeto-Integrador-SENAC.slnx            # Solução .NET 10 multi-projetos
+├── render.yaml                              # Blueprint 1-clique para hospedagem gratuita no Render.com
 └── README.md
 ```
 

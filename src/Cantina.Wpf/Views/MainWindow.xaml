@@ -53,10 +53,23 @@
             <DockPanel LastChildFill="False">
                 <!-- Identidade Visual -->
                 <StackPanel DockPanel.Dock="Top" Margin="4,0,4,22">
-                    <TextBlock Text="DesperdícioZero"
-                               Foreground="White"
-                               FontSize="22"
-                               FontWeight="Bold" />
+                    <DockPanel>
+                        <TextBlock Text="DesperdícioZero"
+                                   Foreground="White"
+                                   FontSize="20"
+                                   FontWeight="Bold" />
+                        <Border DockPanel.Dock="Right"
+                                Background="#1E3A8A"
+                                CornerRadius="6"
+                                Padding="6,2"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center">
+                            <TextBlock Text="{Binding VersaoInstaladaTexto}"
+                                       Foreground="#93C5FD"
+                                       FontSize="11"
+                                       FontWeight="Bold" />
+                        </Border>
+                    </DockPanel>
                     <TextBlock Text="Cantina ALAMO • SENAC Joinville"
                                Foreground="#93C5FD"
                                FontSize="12"
@@ -868,40 +881,92 @@
                           VerticalScrollBarVisibility="Auto"
                           Padding="22,16">
                 <StackPanel>
-                    <!-- Conexão com Servidor Web / Cloud -->
-                    <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,16">
-                        <StackPanel>
-                            <TextBlock Text="☁️ Conexão com o Serviço Web (Local ou Hospedagem Gratuita Render / Fly.io)" FontSize="16" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" />
-                            <TextBlock Text="Aponte este aplicativo Desktop para http://localhost:5180 (modo local integrado) ou para a URL pública gratuita onde o site da cantina estiver hospedado."
-                                       Foreground="{StaticResource TextMutedBrush}"
-                                       FontSize="12"
-                                       Margin="0,3,0,10" />
+                    <!-- Conexão com Servidor Web / Cloud + Auto-Update OTA -->
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.25*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
 
-                            <Grid Margin="0,0,0,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="1.5*" />
-                                    <ColumnDefinition Width="1*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                    <TextBlock Text="URL Base da API &amp; Site de Pedidos:" FontSize="12" Margin="0,0,0,3" />
-                                    <TextBox Text="{Binding ApiBaseUrlConfig, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource InputTextBoxStyle}" />
-                                </StackPanel>
-                                <StackPanel Grid.Column="1" Margin="0,0,10,0">
-                                    <TextBlock Text="Chave X-Api-Key do Backoffice (opcional em localhost):" FontSize="12" Margin="0,0,0,3" />
-                                    <TextBox Text="{Binding AdminApiKeyConfig, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource InputTextBoxStyle}" />
-                                </StackPanel>
-                                <StackPanel Grid.Column="2" VerticalAlignment="Bottom">
+                        <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}" Margin="0,0,12,0">
+                            <StackPanel>
+                                <TextBlock Text="☁️ Conexão com o Serviço Web (Local ou Nuvem Render)" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" />
+                                <TextBlock Text="Gerencie os preços e produtos do site público no Render ou rode em modo local integrado."
+                                           Foreground="{StaticResource TextMutedBrush}"
+                                           FontSize="12"
+                                           Margin="0,3,0,10" />
+
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.5*" />
+                                        <ColumnDefinition Width="1*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                        <TextBlock Text="URL Base da API &amp; Site de Pedidos:" FontSize="12" Margin="0,0,0,3" />
+                                        <TextBox Text="{Binding ApiBaseUrlConfig, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource InputTextBoxStyle}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="Chave X-Api-Key (opcional):" FontSize="12" Margin="0,0,0,3" />
+                                        <TextBox Text="{Binding AdminApiKeyConfig, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource InputTextBoxStyle}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <WrapPanel Margin="0,0,0,8">
                                     <Button Content="🔌 Salvar &amp; Reconectar"
                                             Command="{Binding SalvarConfiguracaoServidorCommand}"
-                                            Style="{StaticResource PrimaryButtonStyle}" />
-                                </StackPanel>
-                            </Grid>
+                                            Style="{StaticResource PrimaryButtonStyle}"
+                                            Margin="0,0,8,4" />
+                                    <Button Content="☁️ Usar Nuvem Render"
+                                            Command="{Binding UsarServidorNuvemRenderCommand}"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            Margin="0,0,8,4" />
+                                    <Button Content="💻 Usar Localhost (5180)"
+                                            Command="{Binding UsarServidorLocalCommand}"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            Margin="0,0,0,4" />
+                                </WrapPanel>
 
-                            <CheckBox Content="Iniciar servidor web local automaticamente quando URL for localhost"
-                                      IsChecked="{Binding AutoStartLocalConfig}" />
-                        </StackPanel>
-                    </Border>
+                                <CheckBox Content="Iniciar servidor web local automaticamente quando URL for localhost"
+                                          IsChecked="{Binding AutoStartLocalConfig}" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Instalação Local & Atualizações Automáticas OTA -->
+                        <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,4">
+                                    <TextBlock Text="🚀 Instalação &amp; Auto-Update (OTA)" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" />
+                                    <TextBlock DockPanel.Dock="Right" Text="{Binding VersaoInstaladaTexto}" FontWeight="Bold" Foreground="{StaticResource PrimaryBlueBrush}" HorizontalAlignment="Right" />
+                                </DockPanel>
+                                <TextBlock Text="{Binding StatusAtualizacaoTexto}"
+                                           Foreground="{StaticResource TextMutedBrush}"
+                                           FontSize="12"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,10" />
+
+                                <TextBlock Text="Repositório de Atualizações (GitHub Releases / Velopack):" FontSize="12" Margin="0,0,0,3" />
+                                <TextBox Text="{Binding UpdateRepositoryUrlConfig, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource InputTextBoxStyle}"
+                                         Margin="0,0,0,10" />
+
+                                <WrapPanel>
+                                    <Button Content="⬆️ Verificar Atualizações"
+                                            Command="{Binding VerificarAtualizacaoCommand}"
+                                            Style="{StaticResource PrimaryButtonStyle}"
+                                            Margin="0,0,8,6" />
+                                    <Button Content="⬇️ Baixar &amp; Instalar Agora"
+                                            Command="{Binding InstalarAtualizacaoCommand}"
+                                            Visibility="{Binding VisibilidadeBotaoInstalarUpdate}"
+                                            Style="{StaticResource WarningButtonStyle}"
+                                            Margin="0,0,8,6" />
+                                    <Button Content="📌 Instalar no PC (Criar Atalhos)"
+                                            Command="{Binding InstalarAtalhosNoComputadorCommand}"
+                                            Style="{StaticResource SuccessButtonStyle}"
+                                            Margin="0,0,0,6" />
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
 
                     <!-- Fechamento Diário Antidesperdício -->
                     <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,16">

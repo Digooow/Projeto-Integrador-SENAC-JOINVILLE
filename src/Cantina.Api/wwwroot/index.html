@@ -3,364 +3,371 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cantina ALAMO — Cardápio Digital Fura-Fila &amp; DesperdícioZero | SENAC Joinville</title>
-  <meta name="description" content="Peça seu lanche sem fila no SENAC Joinville. Cardápio atualizado em tempo real, ofertas antidesperdício às 20h45 e avisos no WhatsApp." />
+  <title>Cantina ALAMO — Pedidos Fura-Fila &amp; DesperdícioZero (SENAC Joinville)</title>
+  <meta name="description" content="Peça pelo celular sem fila na Cantina ALAMO do SENAC Joinville e receba alertas da Queima de Estoque das 20:45 direto no seu WhatsApp." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@600;700;800&amp;family=Plus+Jakarta+Sans:wght@700;800&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/styles.css" />
 </head>
 <body>
-  <!-- HEADER / TOPBAR MODERNA -->
-  <header class="topbar">
-    <div class="container topbar-inner">
-      <div class="brand">
-        <div class="brand-logo" aria-hidden="true">
-          <span class="logo-emoji">🥐</span>
-          <span class="live-dot" title="Cantina operando ao vivo"></span>
+  <!-- ====================================================================
+       1. NAVBAR STICKY GLASSMORPHISM
+       ==================================================================== -->
+  <header class="navbar">
+    <div class="container navbar-inner">
+      <a href="#top" class="brand-identity">
+        <div class="brand-emblem" aria-hidden="true">
+          <svg class="icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
+          </svg>
         </div>
-        <div class="brand-info">
-          <div class="brand-badge-row">
-            <span class="brand-badge">DesperdícioZero</span>
-            <span class="campus-badge">SENAC Joinville</span>
-          </div>
-          <h1 id="cantinaNome">Cantina ALAMO</h1>
+        <div class="brand-titles">
+          <span class="brand-kicker">
+            <span class="live-dot"></span>
+            SENAC Joinville • DesperdícioZero
+          </span>
+          <span class="brand-name">Cantina ALAMO</span>
         </div>
-      </div>
+      </a>
 
-      <div class="topbar-actions">
-        <button type="button" id="btnAbrirRastreador" class="btn-topbar">
-          <span class="btn-icon">🔎</span>
-          <span>Acompanhar Pedido</span>
+      <div class="navbar-actions">
+        <button type="button" id="btnOpenTrackerNav" class="btn-nav-secondary">
+          <svg class="icon-svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/>
+          </svg>
+          <span>Meu Pedido</span>
         </button>
 
-        <button type="button" id="btnTopoCarrinho" class="btn-topbar btn-cart-counter" aria-label="Abrir sacola">
-          <span class="btn-icon">🛍️</span>
-          <span id="badgeContadorTopo" class="cart-pill-count">0</span>
+        <button type="button" id="btnNavCart" class="btn-nav-cart" aria-label="Abrir sacola de compras">
+          <svg class="icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          <span id="navCartTotal">R$ 0,00</span>
+          <span id="navCartBadge" class="nav-cart-badge">0</span>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- CONTEÚDO PRINCIPAL -->
-  <main class="container main-content">
-    <!-- HERO BANNER FOODTECH -->
-    <section class="hero-banner" aria-label="Avisos e Queima de Estoque">
-      <div class="hero-content">
-        <div class="hero-tag-row">
-          <div id="badgeQueima" class="burn-pill">
-            <span class="burn-icon" aria-hidden="true">🔥</span>
-            <span id="horarioQueimaTexto">Queima diária às 20:45</span>
+  <main id="top">
+    <!-- ==================================================================
+         2. HERO GASTRONÔMICO + MOTOR QUEIMA DE ESTOQUE 20:45
+         ================================================================== -->
+    <section class="hero-section container">
+      <div class="hero-grid">
+        <div id="heroBannerCard" class="hero-banner-card">
+          <div class="hero-pill-row">
+            <span id="heroStatusBadge" class="hero-badge-status">
+              <span>QUEIMA PROGRAMADA ÀS 20:45</span>
+            </span>
+            <span class="hero-countdown-chip">
+              <svg class="icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <span id="heroCountdownText">Sincronizando relógio...</span>
+            </span>
           </div>
-          <span class="pill-fura-fila">⚡ Fura-Fila Sem Espera</span>
+
+          <div>
+            <h1 id="heroTitle" class="hero-title">
+              Peça pelo celular e retire <span>sem fila</span> no intervalo do SENAC.
+            </h1>
+            <p id="heroSubtitle" class="hero-subtitle">
+              Cardápio sincronizado em tempo real com o balcão da Cantina ALAMO. Às 20:45, os itens perecíveis entram automaticamente em promoção antidesperdício.
+            </p>
+          </div>
+
+          <div class="hero-cta-row">
+            <a href="#cardapioSection" class="btn-hero-primary">
+              <span>Explorar Cardápio Fresco</span>
+              <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+              </svg>
+            </a>
+            <a href="#whatsappSection" class="btn-hero-whatsapp">
+              <span>Grupos de Ofertas WhatsApp</span>
+            </a>
+          </div>
         </div>
 
-        <h2 class="hero-title">Lanche fresco, fila zero no intervalo e desperdício zero.</h2>
-        <p class="hero-subtitle">
-          Escolha no cardápio com estoque ao vivo, retire em segundos no balcão e receba o aviso
-          automático no seu <strong>WhatsApp</strong> assim que ficar pronto.
-        </p>
-
-        <!-- Comunidades de Turno SENAC WhatsApp -->
-        <div class="hero-groups-wrapper">
-          <span class="hero-groups-label">📲 Grupos de Ofertas dos Turnos no WhatsApp:</span>
-          <div class="whatsapp-groups" id="gruposContainer" aria-label="Grupos de ofertas no WhatsApp">
-            <!-- Gerado via app.js -->
-          </div>
-        </div>
-
-        <!-- Barrinha de Benefícios Rápidos -->
-        <div class="hero-highlights">
-          <div class="highlight-item">
-            <span class="highlight-icon">⏱️</span>
-            <div>
-              <strong>Retirada em 1 min</strong>
-              <span>Mostre o código #AL</span>
+        <!-- Card Lateral: Fotografia em Destaque + Consulta Rápida de Senha -->
+        <aside class="hero-showcase-card" aria-label="Destaque do dia e consulta de pedido">
+          <div class="showcase-photo-wrap">
+            <img
+              id="showcaseImg"
+              src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&amp;fit=crop&amp;w=800&amp;q=80"
+              alt="Fornada fresca Cantina ALAMO"
+              fetchpriority="high"
+              width="640"
+              height="360"
+            />
+            <div class="showcase-photo-overlay">
+              <strong id="showcaseTitle">Croissant Folhado Artesanal</strong>
+              <span id="showcaseBadge" class="showcase-badge">Fornada do Dia</span>
             </div>
           </div>
-          <div class="highlight-item">
-            <span class="highlight-icon">💬</span>
-            <div>
-              <strong>Avisos no WhatsApp</strong>
-              <span>Confirmação e "Pronto!"</span>
-            </div>
-          </div>
-          <div class="highlight-item">
-            <span class="highlight-icon">🌱</span>
-            <div>
-              <strong>Economia &amp; Consciência</strong>
-              <span>Descontos de até 40%</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Card Lateral de Ofertas Ativas -->
-      <div class="hero-card-side">
-        <div class="stat-glass-card">
-          <div class="stat-sparkle" aria-hidden="true">✨</div>
-          <span class="stat-label">OFERTAS ATIVAS AGORA</span>
-          <div class="stat-number-wrapper">
-            <strong id="contadorOfertasHero" class="stat-number">0</strong>
-            <span class="stat-unit">itens</span>
+          <div class="quick-track-box">
+            <label for="quickTrackInput" class="quick-track-label">
+              <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/>
+              </svg>
+              <span>Já pediu? Consulte sua senha de retirada:</span>
+            </label>
+            <div class="quick-track-row">
+              <input
+                type="text"
+                id="quickTrackInput"
+                placeholder="Ex.: AL-4821"
+                autocomplete="off"
+              />
+              <button type="button" id="btnQuickTrack">Rastrear</button>
+            </div>
           </div>
-          <p class="stat-sub">Salgados e lanches perecíveis do dia com preços especiais antes do fechamento.</p>
-          <button type="button" id="btnVerOfertasHero" class="btn-hero-action">
-            Ver Ofertas do Dia 🔥
-          </button>
-        </div>
+        </aside>
       </div>
     </section>
 
-    <!-- BARRA DE FILTROS & BUSCA -->
-    <section class="toolbar-section" aria-label="Filtros e busca do cardápio">
-      <div class="toolbar-header">
-        <div>
-          <h3 class="section-title">Nosso Cardápio</h3>
-          <p class="section-subtitle">Itens preparados diariamente na cozinha da Cantina ALAMO</p>
-        </div>
+    <!-- ==================================================================
+         3. BARRA STICKY DE CATEGORIAS, BUSCA & FILTRO PROMOCIONAL
+         ================================================================== -->
+    <div id="cardapioSection" class="catalog-toolbar-sticky">
+      <div class="container toolbar-inner">
+        <nav id="categoryPills" class="category-pills" aria-label="Categorias do cardápio"></nav>
 
-        <div class="search-box">
-          <span class="search-icon" aria-hidden="true">🔍</span>
-          <label for="campoBusca" class="sr-only">Buscar produto no cardápio</label>
-          <input
-            type="search"
-            id="campoBusca"
-            placeholder="Buscar salgado, suco, doce..."
-            autocomplete="off" />
-          <button type="button" id="btnLimparBusca" class="btn-clear-search" aria-label="Limpar busca" hidden>✕</button>
+        <div class="toolbar-controls">
+          <div class="search-input-wrap">
+            <svg class="icon-svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+            </svg>
+            <input
+              type="search"
+              id="searchInput"
+              placeholder="Buscar salgado, lanche, bebida..."
+              aria-label="Buscar produtos no cardápio"
+            />
+          </div>
+
+          <label class="filter-promo-toggle">
+            <input type="checkbox" id="onlyOffersToggle" />
+            <span>Só Ofertas</span>
+          </label>
         </div>
       </div>
+    </div>
 
-      <!-- Pílulas de Categorias -->
-      <div class="category-scroll-container">
-        <div class="category-pills" id="categoriasContainer" role="tablist">
-          <!-- Pílulas geradas via app.js -->
+    <div class="container">
+      <!-- ================================================================
+           4. VITRINE DE OFERTAS ATIVAS (QUEIMA DE ESTOQUE 20:45)
+           ================================================================ -->
+      <section id="promoSection" class="section-block" hidden>
+        <div class="section-header">
+          <div class="section-title-group">
+            <h2>Ofertas da Queima de Estoque</h2>
+            <p>Itens perecíveis fresquinhos do turno com desconto imediato para evitar desperdício.</p>
+          </div>
+          <span id="promoCountPill" class="section-count-pill">0 ofertas</span>
         </div>
-      </div>
-    </section>
+        <div id="promoGrid" class="products-grid"></div>
+      </section>
 
-    <!-- GRADE DE PRODUTOS -->
-    <section class="catalog-section" aria-live="polite">
-      <div id="catalogoGrid" class="product-grid">
-        <!-- Cards de produtos gerados via app.js -->
-      </div>
-    </section>
+      <!-- ================================================================
+           5. GRADE PRINCIPAL DO CARDÁPIO (FOTOGRAFIA REAL 4:3 + SUBGRID)
+           ================================================================ -->
+      <section class="section-block" aria-labelledby="catalogHeading">
+        <div class="section-header">
+          <div class="section-title-group">
+            <h2 id="catalogHeading">Cardápio Fresco do Dia</h2>
+            <p>Escolha seus itens, reserve online e retire direto no balcão rápido.</p>
+          </div>
+          <span id="catalogCountPill" class="section-count-pill">Carregando...</span>
+        </div>
+        <div id="catalogGrid" class="products-grid"></div>
+      </section>
+
+      <!-- ================================================================
+           6. HUB DE GRUPOS WHATSAPP POR TURNO (SENAC JOINVILLE)
+           ================================================================ -->
+      <section id="whatsappSection" class="whatsapp-hub-section" aria-labelledby="waHeading">
+        <div class="section-title-group">
+          <h2 id="waHeading">Alertas VIP da Queima das 20:45 no WhatsApp</h2>
+          <p>Entre no grupo oficial do seu turno no SENAC Joinville e receba o cardápio promocional assim que os descontos começarem.</p>
+        </div>
+        <div id="whatsappGroupsGrid" class="whatsapp-hub-grid"></div>
+      </section>
+    </div>
   </main>
 
-  <!-- DOCK FLUTUANTE DA SACOLA (FOOTER MODERNO) -->
-  <aside id="barraSacola" class="cart-floating-dock" hidden>
-    <div class="cart-dock-inner">
-      <div class="cart-dock-info">
-        <div class="cart-dock-icon-wrapper">
-          <span class="cart-dock-icon">🛍️</span>
-          <span id="sacolaBadgeQtd" class="cart-dock-count">0</span>
-        </div>
-        <div class="cart-dock-texts">
-          <div class="cart-dock-title-row">
-            <strong id="sacolaResumoItens">0 itens na sacola</strong>
-            <span id="sacolaResumoEconomia" class="badge-saving-pill" hidden>Economia R$ 0,00</span>
-          </div>
-          <span id="sacolaResumoValores" class="cart-dock-total">Total: R$ 0,00</span>
-        </div>
-      </div>
-
-      <button type="button" id="btnFinalizarSacola" class="btn-dock-checkout">
-        <span>Concluir Pedido</span>
-        <span class="btn-arrow" aria-hidden="true">→</span>
-      </button>
+  <!-- ====================================================================
+       7. BARRA FLUTUANTE INFERIOR DA SACOLA
+       ==================================================================== -->
+  <div id="floatingCartPill" class="floating-cart-pill" hidden>
+    <div class="floating-cart-summary">
+      <small id="floatingCartItems">0 itens na sacola</small>
+      <strong id="floatingCartTotal">R$ 0,00</strong>
     </div>
-  </aside>
+    <button type="button" id="btnOpenDrawerFloating" class="btn-open-drawer">
+      <span>Finalizar Pedido Fura-Fila</span>
+      <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+      </svg>
+    </button>
+  </div>
 
-  <!-- MODAL CHECKOUT FURA-FILA (closedby="any") -->
-  <dialog id="checkoutDialog" closedby="any" aria-labelledby="checkoutTitle" class="modal-dialog">
-    <div class="modal-surface">
-      <div class="modal-header">
-        <div class="modal-title-group">
-          <span class="modal-icon">🛍️</span>
-          <div>
-            <h2 id="checkoutTitle">Finalizar Pedido Fura-Fila</h2>
-            <p class="modal-subtitle">Sem cadastro burocrático. Apenas informe quem retira!</p>
-          </div>
+  <!-- ====================================================================
+       8. SLIDE-OVER DRAWER DA SACOLA & CHECKOUT (<dialog closedby="any">)
+       ==================================================================== -->
+  <dialog id="cartDrawerModal" class="app-dialog drawer-right" closedby="any" aria-labelledby="drawerTitle">
+    <div class="dialog-header">
+      <h2 id="drawerTitle">Sua Sacola Fura-Fila</h2>
+      <button type="button" id="btnCloseCartDrawer" class="btn-icon-close" aria-label="Fechar sacola">✕</button>
+    </div>
+
+    <div class="drawer-body">
+      <div id="drawerCartItems" class="cart-item-list"></div>
+
+      <div class="cart-totals-box">
+        <div class="totals-line">
+          <span>Subtotal tabela</span>
+          <span id="drawerSubtotal">R$ 0,00</span>
         </div>
-        <button type="button" class="btn-icon-close" data-close-dialog="checkoutDialog" aria-label="Fechar janela">✕</button>
+        <div id="drawerSavingsRow" class="totals-line savings" hidden>
+          <span>Economia DesperdícioZero</span>
+          <span id="drawerSavings">- R$ 0,00</span>
+        </div>
+        <div class="totals-line grand-total">
+          <span>Total a pagar</span>
+          <span id="drawerGrandTotal">R$ 0,00</span>
+        </div>
       </div>
 
-      <div class="modal-body-scroll">
-        <!-- Resumo da Sacola -->
-        <div class="checkout-cart-summary">
-          <div class="cart-section-title">
-            <span>Itens Selecionados</span>
-            <span id="checkoutTotalItensCount" class="items-counter-badge">0 itens</span>
-          </div>
-          <div id="itensSacolaLista" class="cart-items-list"></div>
-          <div class="cart-totals-card" id="totaisSacolaBox"></div>
+      <!-- Formulário de Checkout com Validação Pós-Interação (:user-invalid) -->
+      <form id="checkoutForm" class="checkout-form">
+        <div class="field">
+          <label for="clienteNome">Seu Nome Completo</label>
+          <span id="nomeHint" class="hint">Como será chamado no balcão de retirada</span>
+          <input
+            type="text"
+            id="clienteNome"
+            name="clienteNome"
+            required
+            minlength="2"
+            autocomplete="name"
+            aria-describedby="nomeHint"
+            aria-errormessage="nomeError"
+          />
+          <div id="nomeError" class="error-msg">Informe seu nome (mínimo 2 caracteres).</div>
         </div>
 
-        <!-- Formulário de Finalização -->
-        <form id="formPedido" class="checkout-form">
-          <div class="form-section-heading">
-            <span class="section-step">1</span>
-            <strong>Dados para Retirada</strong>
+        <div class="field">
+          <label for="clienteWhatsApp">WhatsApp com DDD</label>
+          <span id="whatsHint" class="hint">Formato: (47) 99999-9999 — enviaremos o alerta quando estiver pronto</span>
+          <input
+            type="tel"
+            id="clienteWhatsApp"
+            name="clienteWhatsApp"
+            required
+            pattern=".*[0-9]{8,}.*"
+            autocomplete="tel"
+            aria-describedby="whatsHint"
+            aria-errormessage="whatsError"
+          />
+          <div id="whatsError" class="error-msg">Informe um número de WhatsApp válido com DDD.</div>
+        </div>
+
+        <div class="field-row-2">
+          <div class="field">
+            <label for="clienteTurno">Turno no SENAC</label>
+            <span class="hint">Turno da sua turma</span>
+            <select id="clienteTurno" name="clienteTurno">
+              <option value="Noite" selected>Noite</option>
+              <option value="Manha">Manhã</option>
+              <option value="Tarde">Tarde</option>
+            </select>
           </div>
 
           <div class="field">
-            <label for="clienteNome">Seu Nome Completo *</label>
-            <span id="nome-hint" class="hint">Como chamaremos você na chamada do balcão Fura-Fila.</span>
+            <label for="clientePagamento">Forma de Pagamento</label>
+            <span class="hint">Como prefere pagar</span>
+            <select id="clientePagamento" name="clientePagamento">
+              <option value="PixNaRetirada" selected>PIX na Retirada</option>
+              <option value="PixCopiaECola">PIX Copia e Cola</option>
+              <option value="CartaoNoBalcao">Cartão no Balcão</option>
+              <option value="DinheiroNoBalcao">Dinheiro no Balcão</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-row-2">
+          <div class="field">
+            <label for="clienteEmail">E-mail (opcional)</label>
+            <span id="emailHint" class="hint">Formato: aluno@senac.br</span>
             <input
-              type="text"
-              id="clienteNome"
-              name="nomeCliente"
-              required
-              minlength="3"
-              maxlength="100"
-              autocomplete="name"
-              placeholder="Ex.: Lucas Andrade"
-              aria-describedby="nome-hint"
-              aria-errormessage="nome-error" />
-            <div id="nome-error" class="error-msg">
-              <span aria-hidden="true">❌</span> Digite seu nome completo (mínimo de 3 letras).
-            </div>
+              type="email"
+              id="clienteEmail"
+              name="clienteEmail"
+              autocomplete="email"
+              aria-describedby="emailHint"
+              aria-errormessage="emailError"
+            />
+            <div id="emailError" class="error-msg">Digite um endereço de e-mail válido.</div>
           </div>
 
           <div class="field">
-            <label for="clienteWhatsApp">WhatsApp com DDD (para aviso de lanche pronto) *</label>
-            <span id="whats-hint" class="hint">Enviaremos a confirmação e o aviso no seu WhatsApp.</span>
-            <input
-              type="tel"
-              id="clienteWhatsApp"
-              name="telefoneWhatsApp"
-              required
-              inputmode="tel"
-              autocomplete="tel"
-              pattern="[\d\s\(\)\-\+]{10,20}"
-              placeholder="Ex.: 47 99123-4567"
-              aria-describedby="whats-hint"
-              aria-errormessage="whats-error" />
-            <div id="whats-error" class="error-msg">
-              <span aria-hidden="true">❌</span> Informe um número de WhatsApp válido com DDD (ex.: 47991234567).
-            </div>
+            <label for="clienteMatricula">Matrícula (opcional)</label>
+            <span class="hint">Código do aluno</span>
+            <input type="text" id="clienteMatricula" name="clienteMatricula" />
           </div>
+        </div>
 
-          <div class="form-section-heading">
-            <span class="section-step">2</span>
-            <strong>Turno e Pagamento</strong>
-          </div>
+        <div class="field">
+          <label for="clienteObs">Observações do Pedido (opcional)</label>
+          <span class="hint">Ex.: aquecer bem, guardanapo extra, sem canudo</span>
+          <input type="text" id="clienteObs" name="clienteObs" />
+        </div>
 
-          <div class="form-row">
-            <div class="field">
-              <label for="clienteTurno">Seu Turno no SENAC</label>
-              <select id="clienteTurno" name="turno">
-                <option value="Manha">SENAC Manhã (Dia)</option>
-                <option value="Tarde">SENAC Tarde</option>
-                <option value="Noite" selected>SENAC Noite</option>
-              </select>
-            </div>
+        <label class="checkbox-optin">
+          <input type="checkbox" id="clienteOptIn" checked />
+          <span>Quero receber alertas no WhatsApp quando a Queima de Estoque das 20:45 começar.</span>
+        </label>
 
-            <div class="field">
-              <label for="clientePagamento">Forma de Pagamento</label>
-              <select id="clientePagamento" name="formaPagamento">
-                <option value="PixNaRetirada" selected>PIX na Retirada (Rápido)</option>
-                <option value="PixCopiaECola">PIX Antecipado (Chave)</option>
-                <option value="CartaoNoBalcao">Cartão de Débito/Crédito</option>
-                <option value="DinheiroNoBalcao">Dinheiro no Balcão</option>
-              </select>
-            </div>
-          </div>
+        <p id="checkoutFeedback" aria-live="polite" style="font-size: 0.85rem; color: var(--danger-crimson); font-weight: 600;"></p>
 
-          <div class="form-row">
-            <div class="field">
-              <label for="clienteMatricula">Matrícula SENAC (Opcional)</label>
-              <span id="mat-hint" class="hint">Opcional — agiliza se já tiver cadastro.</span>
-              <input
-                type="text"
-                id="clienteMatricula"
-                name="matricula"
-                maxlength="30"
-                placeholder="Ex.: 2026105"
-                aria-describedby="mat-hint" />
-            </div>
-
-            <div class="field">
-              <label for="clienteObs">Observações (Opcional)</label>
-              <span class="hint">Ex.: sem cebola, esquentar bem...</span>
-              <input
-                type="text"
-                id="clienteObs"
-                name="observacoes"
-                maxlength="200"
-                placeholder="Algum recado para a cozinha?" />
-            </div>
-          </div>
-
-          <div id="erroEnvioPedido" class="alert-error" hidden></div>
-
-          <div class="modal-footer-actions">
-            <button type="button" class="btn-outline" data-close-dialog="checkoutDialog">
-              Voltar ao Cardápio
-            </button>
-            <button type="submit" id="btnEnviarPedido" class="btn-checkout-confirm">
-              <span class="btn-icon">⚡</span>
-              <span>Confirmar Pedido Fura-Fila</span>
-            </button>
-          </div>
-        </form>
-      </div>
+        <button type="submit" id="btnSubmitOrder" class="btn-submit-order">
+          <span>Confirmar Reserva &amp; Gerar Senha</span>
+        </button>
+      </form>
     </div>
   </dialog>
 
-  <!-- MODAL RASTREADOR DE PEDIDO (closedby="any") -->
-  <dialog id="trackerDialog" closedby="any" aria-labelledby="trackerTitle" class="modal-dialog">
-    <div class="modal-surface">
-      <div class="modal-header">
-        <div class="modal-title-group">
-          <span class="modal-icon">🔎</span>
-          <div>
-            <h2 id="trackerTitle">Acompanhar Pedido ao Vivo</h2>
-            <p class="modal-subtitle">Veja o status em tempo real da preparação até a retirada</p>
-          </div>
-        </div>
-        <button type="button" class="btn-icon-close" data-close-dialog="trackerDialog" aria-label="Fechar janela">✕</button>
-      </div>
+  <!-- ====================================================================
+       9. MODAL DE RASTREIO / TICKET DIGITAL (#AL-XXXX) (<dialog closedby="any">)
+       ==================================================================== -->
+  <dialog id="trackerModal" class="app-dialog modal-center" closedby="any" aria-labelledby="trackerModalTitle">
+    <div class="dialog-header">
+      <h2 id="trackerModalTitle">Ticket Digital Fura-Fila</h2>
+      <button type="button" id="btnCloseTrackerModal" class="btn-icon-close" aria-label="Fechar consulta de pedido">✕</button>
+    </div>
 
-      <div class="modal-body-scroll">
-        <form id="formBuscaCodigo" class="tracker-search-form">
-          <label for="inputCodigoPedido" class="sr-only">Código de retirada</label>
-          <div class="tracker-input-wrapper">
-            <span class="tracker-hash" aria-hidden="true">#</span>
-            <input
-              type="text"
-              id="inputCodigoPedido"
-              placeholder="Digite o código (ex.: AL-9K2M)"
-              maxlength="15"
-              required />
-          </div>
-          <button type="submit" class="btn-tracker-search">Consultar</button>
-        </form>
+    <div class="drawer-body">
+      <form id="trackerForm" class="quick-track-row">
+        <input
+          type="text"
+          id="trackerCodeInput"
+          placeholder="Digite o código (ex.: AL-4821)"
+          required
+          aria-label="Código de retirada do pedido"
+        />
+        <button type="submit">Consultar Status</button>
+      </form>
 
-        <div id="resultadoTracker" class="tracker-result-area">
-          <div class="tracker-empty-state">
-            <span class="empty-icon">🧾</span>
-            <p>Digite seu código de retirada acima para ver o status do seu pedido.</p>
-          </div>
-        </div>
-      </div>
+      <div id="trackerTicketContainer"></div>
     </div>
   </dialog>
 
-  <!-- RODAPÉ DA PÁGINA -->
-  <footer class="page-footer">
-    <div class="container footer-inner">
-      <div class="footer-brand">
-        <strong>Cantina ALAMO • DesperdícioZero</strong>
-        <p>Faculdade de Tecnologia SENAC Joinville • Alimentação consciente e sem filas</p>
-      </div>
-      <div class="footer-note">
-        <span>Criado pela turma de Análise e Desenvolvimento de Sistemas</span>
-      </div>
-    </div>
-  </footer>
-
-  <script src="/app.js"></script>
+  <!-- Inicialização Modular em 4 Camadas (ES Modules) -->
+  <script type="module" src="/app/main.js"></script>
 </body>
 </html>
