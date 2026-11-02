@@ -93,3 +93,4 @@ public partial class App : System.Windows.Application
                || uri.Host.Equals("127.0.0.1", StringComparison.OrdinalIgnoreCase);
     }
 }
+

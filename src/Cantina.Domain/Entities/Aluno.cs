@@ -42,3 +42,4 @@ public class Aluno
         CriadoEm = agoraUtc ?? DateTime.UtcNow;
     }
 }
+

@@ -183,3 +183,4 @@ public static class CantinaDatabaseSeeder
         await db.SaveChangesAsync(ct);
     }
 }
+

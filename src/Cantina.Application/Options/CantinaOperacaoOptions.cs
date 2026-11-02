@@ -11,3 +11,4 @@ public sealed class CantinaOperacaoOptions
     public string UrlPublicaCardapio { get; set; } = "http://localhost:5180";
     public bool HabilitarWorkerQueimaAutomatica { get; set; } = true;
 }
+

@@ -41,3 +41,4 @@ USER $APP_UID
 EXPOSE 8080
 
 ENTRYPOINT ["dotnet", "Cantina.Api.dll"]
+

@@ -261,3 +261,4 @@ public sealed class GestaoCantinaService : IGestaoCantinaService
         return lista.Select(f => f.ToDto()).ToList();
     }
 }
+

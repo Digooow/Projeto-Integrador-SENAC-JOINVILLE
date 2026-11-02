@@ -378,3 +378,4 @@ public sealed class CatalogoService : ICatalogoService
         }
     }
 }
+

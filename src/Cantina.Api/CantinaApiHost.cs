@@ -248,3 +248,4 @@ public static class CantinaApiHost
             Results.Ok(await gestao.GerarFechamentoDiarioAsync(req, ct)));
     }
 }
+

@@ -524,3 +524,4 @@
   // Atualização automática do estoque a cada 10s
   setInterval(carregarCardapio, 10000);
 })();
+

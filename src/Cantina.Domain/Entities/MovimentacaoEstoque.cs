@@ -33,3 +33,4 @@ public class MovimentacaoEstoque
         OcorridaEm = agoraUtc ?? DateTime.UtcNow;
     }
 }
+

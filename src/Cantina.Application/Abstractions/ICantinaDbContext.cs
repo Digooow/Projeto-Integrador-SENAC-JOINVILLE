@@ -17,3 +17,4 @@ public interface ICantinaDbContext
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
+

@@ -56,3 +56,4 @@ public enum CanalEnvioWhatsApp
     EvolutionApi = 2,
     OutboxWaMeFallback = 3
 }
+

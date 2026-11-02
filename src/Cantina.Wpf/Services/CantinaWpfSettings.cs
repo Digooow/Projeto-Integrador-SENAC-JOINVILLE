@@ -47,3 +47,4 @@ public sealed class CantinaWpfSettings
         File.WriteAllText(ConfigPath, json);
     }
 }
+

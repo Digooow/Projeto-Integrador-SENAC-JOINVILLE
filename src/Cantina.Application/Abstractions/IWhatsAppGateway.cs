@@ -23,3 +23,4 @@ public interface IWhatsAppGateway
         string mensagem,
         CancellationToken cancellationToken = default);
 }
+

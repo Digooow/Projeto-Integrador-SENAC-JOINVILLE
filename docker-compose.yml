@@ -59,3 +59,4 @@ services:
 volumes:
   cantina_pgdata:
   evolution_instances:
+

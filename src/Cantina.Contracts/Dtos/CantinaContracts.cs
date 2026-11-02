@@ -217,3 +217,4 @@ public sealed record CardapioPublicoDto(
     IReadOnlyList<CategoriaDto> Categorias,
     IReadOnlyList<ProdutoDto> Produtos,
     IReadOnlyList<GrupoWhatsAppDto> GruposWhatsApp);
+

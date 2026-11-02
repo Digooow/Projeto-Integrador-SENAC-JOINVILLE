@@ -211,3 +211,4 @@ public class Produto
         AtualizadoEm = agoraUtc ?? DateTime.UtcNow;
     }
 }
+

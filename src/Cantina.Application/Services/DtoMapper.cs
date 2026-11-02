@@ -139,3 +139,4 @@ public static class DtoMapper
         throw new DomainException($"Status de pedido inválido: '{valor}'.");
     }
 }
+

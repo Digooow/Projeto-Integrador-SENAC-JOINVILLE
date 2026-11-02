@@ -183,3 +183,4 @@ public sealed class CantinaApiClient : IDisposable
 
     public void Dispose() => _http.Dispose();
 }
+

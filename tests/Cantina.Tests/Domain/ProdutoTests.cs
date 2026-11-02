@@ -85,3 +85,4 @@ public sealed class ProdutoTests
         Assert.Equal(7, produto.QuantidadeDisponivel);
     }
 }
+

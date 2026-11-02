@@ -133,3 +133,4 @@ public sealed class CantinaDbContext : DbContext, ICantinaDbContext
         });
     }
 }
+

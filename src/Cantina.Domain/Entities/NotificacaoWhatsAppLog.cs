@@ -41,3 +41,4 @@ public class NotificacaoWhatsAppLog
         CriadaEm = agoraUtc ?? DateTime.UtcNow;
     }
 }
+

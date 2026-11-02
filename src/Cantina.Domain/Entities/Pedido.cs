@@ -198,3 +198,4 @@ public class ItemPedido
         ItemPromocional = produto.TemDesconto && produto.PrecoFinal < produto.PrecoVenda;
     }
 }
+

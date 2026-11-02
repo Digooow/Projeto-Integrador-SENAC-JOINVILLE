@@ -97,3 +97,4 @@ public static class WhatsAppMessageFormatter
     public static string FormatarPedidoCancelado(Pedido pedido, string nomeCantina) =>
         $"⚠️ *{nomeCantina}:* Olá, *{pedido.NomeCliente}*. O pedido *#{pedido.CodigoRetirada}* foi cancelado e os itens retornaram ao estoque.";
 }
+

@@ -94,3 +94,4 @@ public sealed class QueimaEstoqueBackgroundService : BackgroundService
         return utc.AddHours(-3);
     }
 }
+

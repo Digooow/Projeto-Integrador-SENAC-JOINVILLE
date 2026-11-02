@@ -279,3 +279,4 @@ public sealed class PedidoService : IPedidoService
         return pedido.ToDto(linkWaMe);
     }
 }
+
