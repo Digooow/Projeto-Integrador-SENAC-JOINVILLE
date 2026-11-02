@@ -16,6 +16,14 @@ Plataforma completa em **.NET 10 (Clean Architecture)** para operação intelige
   <img src="https://img.shields.io/badge/Testes-11%2F11%20xUnit-16A34A" alt="Testes xUnit" />
 </p>
 
+> ### 🌐 Acesso Rápido & Links da Aplicação
+> - **Site Web Fura-Fila (Alunos):** [https://cantina-alamo-senac.onrender.com](https://cantina-alamo-senac.onrender.com)
+> - **API REST & Cardápio Público (JSON):** [https://cantina-alamo-senac.onrender.com/api/v1/cardapio](https://cantina-alamo-senac.onrender.com/api/v1/cardapio)
+> - **Monitoramento & Health Check:** [https://cantina-alamo-senac.onrender.com/health](https://cantina-alamo-senac.onrender.com/health)
+> - **Painel de Controle dos Serviços no Render:** [https://dashboard.render.com](https://dashboard.render.com)
+> - **Repositório GitHub:** [https://github.com/Digooow/Projeto-Integrador-SENAC-JOINVILLE](https://github.com/Digooow/Projeto-Integrador-SENAC-JOINVILLE)
+> - **Pipeline CI/CD (GitHub Actions):** [https://github.com/Digooow/Projeto-Integrador-SENAC-JOINVILLE/actions](https://github.com/Digooow/Projeto-Integrador-SENAC-JOINVILLE/actions)
+
 ---
 
 ## Sumário
@@ -372,6 +380,33 @@ Configure as variáveis `WhatsApp__*` (veja `.env.example`):
 | **`Disabled` (Padrão Outbox + `wa.me`)** | **R\$ 0** | Zero configuração externa. Gera links `https://wa.me/5547...` prontos no site e no painel WPF para notificar o aluno em 1 clique no WhatsApp Web/Desktop. |
 | **`EvolutionApi` (Recomendado para Grupos + Alunos)** | **R\$ 0** | Suba com `docker compose --profile whatsapp up -d`, escaneie o QR Code do WhatsApp da cantina e o servidor enviará mensagens **100% automáticas** tanto para o WhatsApp individual dos alunos quanto para os grupos de turno (`@g.us`) às `20:45`. |
 | **`MetaCloudApi` (API Oficial Meta)** | **Cota gratuita Meta** | Usa o *WhatsApp Business Cloud API* oficial da Meta (`MetaPhoneNumberId` + `MetaAccessToken`) para envio automático individual em nuvem sem precisar manter celular conectado. |
+
+---
+
+### CI/CD e Deploy Automático no Render (Ao Fazer Commit)
+
+**Sim, o projeto possui pipeline completo de CI/CD!** Você pode fazer commit e push que o site atualizará no Render automaticamente:
+
+```text
+[Seu Computador] ── git push origin main ──> [GitHub]
+                                                │
+                                                ├── 1. GitHub Actions (CI)
+                                                │      • Compila toda a solução em Release
+                                                │      • Executa os 11 testes unitários e de integração
+                                                │
+                                                └── 2. Render.com (CD Automático)
+                                                       • Detecta o novo commit na branch 'main'
+                                                       • Reconstrói o container Docker (Dockerfile)
+                                                       • Publica a nova versão do site e da API sem downtime
+```
+
+1. **Continuous Integration (CI):**
+   - Configurado em `.github/workflows/ci.yml`.
+   - Executado automaticamente a cada push nas branches `main` e `develop`. Se algum teste falhar ou quebrar uma regra de negócio, o GitHub sinaliza com ❌ antes que vire um problema em produção.
+2. **Continuous Deployment (CD no Render):**
+   - No arquivo `render.yaml`, as diretivas `branch: main` e `autoDeploy: true` já estão configuradas.
+   - Assim que você conecta o repositório no Render (via Blueprint), **toda alteração enviada para a branch `main` gera um deploy automático**. Não é necessário entrar no painel do Render para clicar em nada.
+   - *(Opcional)*: Se quiser disparar o deploy explicitamente após os testes do GitHub Actions passarem, basta copiar o *Deploy Hook* do serviço no Render e salvá-lo como o secret `RENDER_DEPLOY_HOOK_URL` no GitHub (*Settings > Secrets and variables > Actions*).
 
 ---
 

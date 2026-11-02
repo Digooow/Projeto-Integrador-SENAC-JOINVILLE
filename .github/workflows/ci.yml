@@ -28,3 +28,18 @@ jobs:
       - name: Executar suíte de testes automatizados (Domínio, Aplicação e Integração HTTP)
         run: dotnet test tests/Cantina.Tests/Cantina.Tests.csproj --no-build -c Release --verbosity normal
 
+  deploy-to-render:
+    name: CD — Deploy no Render.com
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Disparar Deploy Hook no Render (Opcional caso configurado em Secrets)
+        if: env.RENDER_DEPLOY_HOOK_URL != ''
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          echo "Disparando webhook de deploy no Render.com..."
+          curl -s -X POST "$RENDER_DEPLOY_HOOK_URL"
+          echo "Deploy acionado com sucesso!"
+

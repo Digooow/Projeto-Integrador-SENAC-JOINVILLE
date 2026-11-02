@@ -6,6 +6,8 @@ services:
     name: cantina-alamo-senac
     runtime: docker
     plan: free
+    branch: main
+    autoDeploy: true
     healthCheckPath: /health
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
