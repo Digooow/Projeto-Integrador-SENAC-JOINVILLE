@@ -512,3 +512,9 @@ produtos.json
 *.pptx
 *.xls
 *.xlsx
+
+# Bloqueio explícito de artefatos e binários compilados (.NET)
+*.dll
+*.exe
+*.pdb
+
