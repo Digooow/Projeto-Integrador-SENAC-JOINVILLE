@@ -93,7 +93,7 @@ public sealed class PedidoService : IPedidoService
         catch (Exception ex)
         {
             envio = new ResultadoEnvioWhatsApp(
-                CanalEnvioWhatsApp.LinkManualWaMe,
+                CanalEnvioWhatsApp.OutboxWaMeFallback,
                 false,
                 WhatsAppMessageFormatter.GerarLinkWaMe(pedido.TelefoneWhatsApp, msgConfirmacao),
                 $"Falha de rede ao disparar gateway: {ex.Message}");
