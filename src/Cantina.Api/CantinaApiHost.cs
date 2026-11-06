@@ -152,20 +152,29 @@ public static class CantinaApiHost
                 var config = context.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
                 var expectedKey = config["Security:AdminApiKey"];
 
-                if (!string.IsNullOrWhiteSpace(expectedKey))
+                if (string.IsNullOrWhiteSpace(expectedKey))
                 {
-                    var provided = context.HttpContext.Request.Headers["X-Api-Key"].ToString();
-                    if (!string.Equals(expectedKey, provided, StringComparison.Ordinal))
-                    {
-                        return Results.Json(
-                            new ProblemDetails
-                            {
-                                Status = StatusCodes.Status401Unauthorized,
-                                Title = "Acesso restrito ao Backoffice",
-                                Detail = "Informe um cabeçalho X-Api-Key válido para gerenciar a cantina."
-                            },
-                            statusCode: StatusCodes.Status401Unauthorized);
-                    }
+                    return Results.Json(
+                        new ProblemDetails
+                        {
+                            Status = StatusCodes.Status503ServiceUnavailable,
+                            Title = "Acesso restrito ao Backoffice",
+                            Detail = "A chave Security:AdminApiKey não foi configurada no servidor."
+                        },
+                        statusCode: StatusCodes.Status503ServiceUnavailable);
+                }
+
+                var provided = context.HttpContext.Request.Headers["X-Api-Key"].ToString();
+                if (!string.Equals(expectedKey, provided, StringComparison.Ordinal))
+                {
+                    return Results.Json(
+                        new ProblemDetails
+                        {
+                            Status = StatusCodes.Status401Unauthorized,
+                            Title = "Acesso restrito ao Backoffice",
+                            Detail = "Informe um cabeçalho X-Api-Key válido para gerenciar a cantina."
+                        },
+                        statusCode: StatusCodes.Status401Unauthorized);
                 }
 
                 return await next(context);

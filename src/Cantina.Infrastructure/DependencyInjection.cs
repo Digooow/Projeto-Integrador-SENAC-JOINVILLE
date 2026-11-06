@@ -38,11 +38,15 @@ public static class DependencyInjection
             if (provider.Equals("PostgreSql", StringComparison.OrdinalIgnoreCase) ||
                 provider.Equals("Postgres", StringComparison.OrdinalIgnoreCase))
             {
-                string pgConn = !string.IsNullOrWhiteSpace(connStr)
-                    ? (connStr.StartsWith("postgres", StringComparison.OrdinalIgnoreCase)
-                        ? ConverterDatabaseUrlParaNpgsql(connStr)
-                        : connStr)
-                    : "Host=localhost;Port=5432;Database=cantina_alamo;Username=postgres;Password=postgres";
+                if (string.IsNullOrWhiteSpace(connStr))
+                {
+                    throw new InvalidOperationException(
+                        "A ConnectionString 'DefaultConnection' precisa ser informada quando o provider configurado for PostgreSQL.");
+                }
+
+                string pgConn = connStr.StartsWith("postgres", StringComparison.OrdinalIgnoreCase)
+                    ? ConverterDatabaseUrlParaNpgsql(connStr)
+                    : connStr;
 
                 options.UseNpgsql(pgConn);
             }
