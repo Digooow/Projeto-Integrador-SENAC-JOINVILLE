@@ -43,10 +43,14 @@ public static class CantinaApiHost
         builder.Services.AddHealthChecks();
         builder.Services.AddProblemDetails();
 
+        var allowedOrigins = (Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGINS")
+            ?? "http://localhost:5000,http://localhost:5173,http://localhost:3000,http://127.0.0.1:5000,http://127.0.0.1:5173")
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
         builder.Services.AddCors(cors =>
         {
             cors.AddDefaultPolicy(policy =>
-                policy.AllowAnyOrigin()
+                policy.WithOrigins(allowedOrigins)
                       .AllowAnyHeader()
                       .AllowAnyMethod());
         });
@@ -68,6 +72,18 @@ public static class CantinaApiHost
                         Status = StatusCodes.Status400BadRequest,
                         Title = "Validação de regra de negócio",
                         Detail = domainEx.Message
+                    });
+                    return;
+                }
+
+                if (ex is Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException)
+                {
+                    context.Response.StatusCode = StatusCodes.Status409Conflict;
+                    await context.Response.WriteAsJsonAsync(new ProblemDetails
+                    {
+                        Status = StatusCodes.Status409Conflict,
+                        Title = "Conflito de concorrência no estoque",
+                        Detail = "O estoque deste item foi alterado por outro pedido concorrente. Por favor, revise seu carrinho e envie novamente."
                     });
                     return;
                 }

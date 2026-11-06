@@ -36,6 +36,7 @@ public sealed class CantinaDbContext : DbContext, ICantinaDbContext
         {
             b.ToTable("Produtos");
             b.HasKey(x => x.Id);
+            b.Property(x => x.AtualizadoEm).IsConcurrencyToken();
             b.Property(x => x.Nome).HasMaxLength(100).IsRequired();
             b.Property(x => x.Descricao).HasMaxLength(300);
             b.Property(x => x.IconeEmoji).HasMaxLength(16);

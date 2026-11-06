@@ -85,7 +85,19 @@ public sealed class PedidoService : IPedidoService
             _options.NomeCantina,
             _options.UrlPublicaCardapio);
 
-        var envio = await _whatsApp.EnviarMensagemIndividualAsync(pedido.TelefoneWhatsApp, msgConfirmacao, ct);
+        ResultadoEnvioWhatsApp envio;
+        try
+        {
+            envio = await _whatsApp.EnviarMensagemIndividualAsync(pedido.TelefoneWhatsApp, msgConfirmacao, ct);
+        }
+        catch (Exception ex)
+        {
+            envio = new ResultadoEnvioWhatsApp(
+                CanalEnvioWhatsApp.LinkManualWaMe,
+                false,
+                WhatsAppMessageFormatter.GerarLinkWaMe(pedido.TelefoneWhatsApp, msgConfirmacao),
+                $"Falha de rede ao disparar gateway: {ex.Message}");
+        }
         _db.NotificacoesWhatsApp.Add(new NotificacaoWhatsAppLog(
             TipoNotificacaoWhatsApp.ConfirmacaoPedido,
             envio.CanalUtilizado,

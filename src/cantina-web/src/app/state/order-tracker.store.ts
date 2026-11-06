@@ -1,4 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { CantinaApiService } from '../core/api/cantina-api.service';
 import { PedidoDto } from '../core/models/cantina.models';
 
@@ -20,8 +21,12 @@ export class OrderTrackerStore {
       const order = await this.api.consultarPedidoPorCodigo(code);
       this.activeOrder.set(order);
       return order;
-    } catch {
-      this.errorMessage.set('Pedido não localizado. Confira o código #AL-XXXX informado.');
+    } catch (error: unknown) {
+      if (error instanceof HttpErrorResponse && error.status === 404) {
+        this.errorMessage.set('Pedido não localizado. Confira o código #AL-XXXX informado.');
+      } else {
+        this.errorMessage.set('Falha na comunicação com o servidor. Verifique sua conexão e tente novamente.');
+      }
       return null;
     } finally {
       this.isSearching.set(false);

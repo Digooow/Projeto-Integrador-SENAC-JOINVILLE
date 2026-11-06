@@ -430,9 +430,9 @@ Projeto-Integrador-SENAC/
 │   ├── Cantina.Contracts/                   # DTOs e contratos HTTP compartilhados (Web/API/WPF)
 │   ├── Cantina.Application/                 # Casos de uso, formatador WhatsApp e abstrações
 │   ├── Cantina.Infrastructure/              # EF Core 10 (SQLite + PostgreSQL), Seeder e SmartWhatsAppGateway
-│   ├── Cantina.Api/                         # Minimal API REST, Worker 20:45 e Vitrine Foodtech em wwwroot/
+│   ├── Cantina.Api/                         # Minimal API REST, Worker 20:45 e Vitrine Web ativa servida via wwwroot/
 │   ├── Cantina.Wpf/                         # Programa Desktop Instalável com Auto-Update OTA (AppUpdateService)
-│   └── cantina-web/                         # Workspace Angular 19+ (4 Camadas: Core, State Signals, UI, Features)
+│   └── cantina-web/                         # Frontend modular em Angular 19+ (Core, State Signals, UI) em desenvolvimento/migração desacoplada
 ├── tests/
 │   └── Cantina.Tests/                       # Testes unitários e de integração HTTP (WebApplicationFactory)
 ├── AGENTS.md                                # Contrato de engenharia para colaboração entre múltiplas IAs
