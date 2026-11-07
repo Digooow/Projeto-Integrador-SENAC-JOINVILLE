@@ -6,6 +6,7 @@ namespace Cantina.Domain.Entities;
 public class Pedido
 {
     private readonly List<ItemPedido> _itens = new();
+    private static int _codigoRetiradaSequencial = Random.Shared.Next(0x1000000);
 
     public int Id { get; set; }
     public string CodigoRetirada { get; private set; } = string.Empty;
@@ -154,7 +155,7 @@ public class Pedido
     public static string GerarCodigoRetirada(DateTime? referenciaUtc = null)
     {
         int ano = (referenciaUtc ?? DateTime.UtcNow).Year;
-        string sufixo = Guid.NewGuid().ToString("N")[..6].ToUpperInvariant();
+        string sufixo = (Interlocked.Increment(ref _codigoRetiradaSequencial) & 0xFFFFFF).ToString("X6");
         return $"AL-{ano}-{sufixo}";
     }
 
@@ -198,4 +199,3 @@ public class ItemPedido
         ItemPromocional = produto.TemDesconto && produto.PrecoFinal < produto.PrecoVenda;
     }
 }
-
