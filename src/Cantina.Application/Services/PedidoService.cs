@@ -6,6 +6,8 @@ using Cantina.Domain.Entities;
 using Cantina.Domain.Enums;
 using Cantina.Domain.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 namespace Cantina.Application.Services;
@@ -24,15 +26,18 @@ public sealed class PedidoService : IPedidoService
     private readonly ICantinaDbContext _db;
     private readonly IWhatsAppGateway _whatsApp;
     private readonly CantinaOperacaoOptions _options;
+    private readonly ILogger<PedidoService> _logger;
 
     public PedidoService(
         ICantinaDbContext db,
         IWhatsAppGateway whatsApp,
-        IOptions<CantinaOperacaoOptions> options)
+        IOptions<CantinaOperacaoOptions> options,
+        ILogger<PedidoService>? logger = null)
     {
         _db = db;
         _whatsApp = whatsApp;
         _options = options.Value;
+        _logger = logger ?? NullLogger<PedidoService>.Instance;
     }
 
     public async Task<PedidoDto> CriarPedidoWebAsync(CriarPedidoWebRequest req, CancellationToken ct = default)
@@ -76,6 +81,8 @@ public sealed class PedidoService : IPedidoService
             req.Observacoes,
             itensDominio);
 
+        await GarantirCodigoRetiradaUnicoAsync(pedido, ct);
+
         _db.Pedidos.Add(pedido);
         _db.MovimentacoesEstoque.AddRange(movimentacoes);
         await _db.SaveChangesAsync(ct);
@@ -92,23 +99,41 @@ public sealed class PedidoService : IPedidoService
         }
         catch (Exception ex)
         {
+            _logger.LogError(
+                ex,
+                "Falha ao notificar WhatsApp de confirmação do pedido {PedidoId} (#{CodigoRetirada})",
+                pedido.Id,
+                pedido.CodigoRetirada);
+
             envio = new ResultadoEnvioWhatsApp(
                 CanalEnvioWhatsApp.OutboxWaMeFallback,
                 false,
                 WhatsAppMessageFormatter.GerarLinkWaMe(pedido.TelefoneWhatsApp, msgConfirmacao),
                 $"Falha de rede ao disparar gateway: {ex.Message}");
         }
-        _db.NotificacoesWhatsApp.Add(new NotificacaoWhatsAppLog(
-            TipoNotificacaoWhatsApp.ConfirmacaoPedido,
-            envio.CanalUtilizado,
-            pedido.TelefoneWhatsApp,
-            msgConfirmacao,
-            envio.EnviadoAutomaticamente,
-            envio.LinkFallbackWaMe,
-            envio.DetalheStatus,
-            pedido.Id));
 
-        await _db.SaveChangesAsync(ct);
+        try
+        {
+            _db.NotificacoesWhatsApp.Add(new NotificacaoWhatsAppLog(
+                TipoNotificacaoWhatsApp.ConfirmacaoPedido,
+                envio.CanalUtilizado,
+                pedido.TelefoneWhatsApp,
+                msgConfirmacao,
+                envio.EnviadoAutomaticamente,
+                envio.LinkFallbackWaMe,
+                envio.DetalheStatus,
+                pedido.Id));
+
+            await _db.SaveChangesAsync(ct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Falha ao persistir log de notificação WhatsApp do pedido {PedidoId}",
+                pedido.Id);
+        }
+
         return pedido.ToDto(envio.LinkFallbackWaMe);
     }
 
@@ -152,6 +177,8 @@ public sealed class PedidoService : IPedidoService
             pagamento,
             observacoes: "Venda rápida registrada no PDV Desktop",
             itensDominio);
+
+        await GarantirCodigoRetiradaUnicoAsync(pedido, ct);
 
         _db.Pedidos.Add(pedido);
         _db.MovimentacoesEstoque.AddRange(movimentacoes);
@@ -268,27 +295,70 @@ public sealed class PedidoService : IPedidoService
                 throw new DomainException($"Transição para '{novoStatus}' não é suportada.");
         }
 
+        // 1. Persiste a transição do pedido e a movimentação de estoque primeiro (elimina Dual Write)
+        await _db.SaveChangesAsync(ct);
+
+        // 2. Dispara a notificação externa apenas pós-commit, isolando falhas de rede em log
         string? linkWaMe = null;
         if (tipoNotificacao.HasValue &&
             !string.IsNullOrWhiteSpace(mensagemNotificacao) &&
             !string.IsNullOrWhiteSpace(pedido.TelefoneWhatsApp))
         {
-            var envio = await _whatsApp.EnviarMensagemIndividualAsync(pedido.TelefoneWhatsApp, mensagemNotificacao, ct);
+            ResultadoEnvioWhatsApp envio;
+            try
+            {
+                envio = await _whatsApp.EnviarMensagemIndividualAsync(pedido.TelefoneWhatsApp, mensagemNotificacao, ct);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Falha ao notificar WhatsApp do pedido {PedidoId} (#{CodigoRetirada}) para o status {NovoStatus}",
+                    pedido.Id,
+                    pedido.CodigoRetirada,
+                    novoStatus);
+
+                envio = new ResultadoEnvioWhatsApp(
+                    CanalEnvioWhatsApp.OutboxWaMeFallback,
+                    false,
+                    WhatsAppMessageFormatter.GerarLinkWaMe(pedido.TelefoneWhatsApp, mensagemNotificacao),
+                    $"Falha de rede ao disparar gateway: {ex.Message}");
+            }
+
             linkWaMe = envio.LinkFallbackWaMe;
 
-            _db.NotificacoesWhatsApp.Add(new NotificacaoWhatsAppLog(
-                tipoNotificacao.Value,
-                envio.CanalUtilizado,
-                pedido.TelefoneWhatsApp,
-                mensagemNotificacao,
-                envio.EnviadoAutomaticamente,
-                envio.LinkFallbackWaMe,
-                envio.DetalheStatus,
-                pedido.Id));
+            try
+            {
+                _db.NotificacoesWhatsApp.Add(new NotificacaoWhatsAppLog(
+                    tipoNotificacao.Value,
+                    envio.CanalUtilizado,
+                    pedido.TelefoneWhatsApp,
+                    mensagemNotificacao,
+                    envio.EnviadoAutomaticamente,
+                    envio.LinkFallbackWaMe,
+                    envio.DetalheStatus,
+                    pedido.Id));
+
+                await _db.SaveChangesAsync(ct);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Falha ao persistir log de notificação WhatsApp do pedido {PedidoId}",
+                    pedido.Id);
+            }
         }
 
-        await _db.SaveChangesAsync(ct);
         return pedido.ToDto(linkWaMe);
+    }
+
+    private async Task GarantirCodigoRetiradaUnicoAsync(Pedido pedido, CancellationToken ct)
+    {
+        while (await _db.Pedidos.AnyAsync(p => p.CodigoRetirada == pedido.CodigoRetirada, ct))
+        {
+            pedido.RegenerarCodigoRetirada();
+        }
     }
 }
 

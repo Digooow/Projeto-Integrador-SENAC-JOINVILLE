@@ -70,4 +70,20 @@ public sealed class PedidoTests
         // Pedido já entregue não pode ser cancelado
         Assert.Throws<DomainException>(() => pedido.Cancelar());
     }
+
+    [Fact]
+    public void GerarCodigoRetirada_DeveUsarFormatoForteComAnoEHexadecimalMaiusculo()
+    {
+        var referencia = new DateTime(2026, 11, 7, 12, 0, 0, DateTimeKind.Utc);
+        var codigo = Pedido.GerarCodigoRetirada(referencia);
+
+        Assert.Matches(@"^AL-2026-[0-9A-F]{6}$", codigo);
+
+        var lote = Enumerable.Range(0, 1500)
+            .Select(_ => Pedido.GerarCodigoRetirada(referencia))
+            .ToList();
+
+        // Espaço de 16^6 (16,7 milhões) por ano garante ausência de colisão em lotes operacionais
+        Assert.Equal(lote.Count, lote.Distinct(StringComparer.Ordinal).Count());
+    }
 }

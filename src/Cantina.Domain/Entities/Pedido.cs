@@ -64,7 +64,7 @@ public class Pedido
 
         var now = agoraUtc ?? DateTime.UtcNow;
 
-        CodigoRetirada = string.IsNullOrWhiteSpace(codigoRetirada) ? GerarCodigoRetirada() : codigoRetirada.Trim().ToUpperInvariant();
+        CodigoRetirada = string.IsNullOrWhiteSpace(codigoRetirada) ? GerarCodigoRetirada(now) : codigoRetirada.Trim().ToUpperInvariant();
         Origem = origem;
         Status = origem == OrigemPedido.BalcaoDesktop ? StatusPedido.Concluido : StatusPedido.Recebido;
         NomeCliente = nomeCliente.Trim();
@@ -151,16 +151,16 @@ public class Pedido
         return digitos;
     }
 
-    public static string GerarCodigoRetirada()
+    public static string GerarCodigoRetirada(DateTime? referenciaUtc = null)
     {
-        const string alfabeto = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-        Span<char> sufixo = stackalloc char[4];
-        for (int i = 0; i < sufixo.Length; i++)
-        {
-            sufixo[i] = alfabeto[Random.Shared.Next(alfabeto.Length)];
-        }
+        int ano = (referenciaUtc ?? DateTime.UtcNow).Year;
+        string sufixo = Guid.NewGuid().ToString("N")[..6].ToUpperInvariant();
+        return $"AL-{ano}-{sufixo}";
+    }
 
-        return $"AL-{new string(sufixo)}";
+    public void RegenerarCodigoRetirada(DateTime? referenciaUtc = null)
+    {
+        CodigoRetirada = GerarCodigoRetirada(referenciaUtc);
     }
 }
 

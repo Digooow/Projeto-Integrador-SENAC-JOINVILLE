@@ -55,7 +55,7 @@ public sealed class CantinaDbContext : DbContext, ICantinaDbContext
         {
             b.ToTable("Pedidos");
             b.HasKey(x => x.Id);
-            b.HasIndex(x => x.CodigoRetirada);
+            b.HasIndex(x => x.CodigoRetirada).IsUnique();
             b.Property(x => x.CodigoRetirada).HasMaxLength(20).IsRequired();
             b.Property(x => x.NomeCliente).HasMaxLength(100).IsRequired();
             b.Property(x => x.TelefoneWhatsApp).HasMaxLength(25);
