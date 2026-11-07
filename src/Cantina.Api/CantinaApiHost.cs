@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using Cantina.Api.Workers;
 using Cantina.Application.Services;
 using Cantina.Contracts.Dtos;
@@ -165,7 +167,12 @@ public static class CantinaApiHost
                 }
 
                 var provided = context.HttpContext.Request.Headers["X-Api-Key"].ToString();
-                if (!string.Equals(expectedKey, provided, StringComparison.Ordinal))
+                ReadOnlySpan<byte> expectedBytes = Encoding.UTF8.GetBytes(expectedKey);
+                ReadOnlySpan<byte> providedBytes = Encoding.UTF8.GetBytes(provided);
+                ReadOnlySpan<byte> expectedHash = SHA256.HashData(expectedBytes);
+                ReadOnlySpan<byte> providedHash = SHA256.HashData(providedBytes);
+
+                if (!CryptographicOperations.FixedTimeEquals(expectedHash, providedHash))
                 {
                     return Results.Json(
                         new ProblemDetails
