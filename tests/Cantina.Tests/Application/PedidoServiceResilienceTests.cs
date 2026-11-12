@@ -110,6 +110,63 @@ public sealed class PedidoServiceResilienceTests : IDisposable
         await Assert.ThrowsAsync<DbUpdateException>(() => _db.SaveChangesAsync());
     }
 
+    [Fact]
+    public async Task RegistrarVendaBalcaoAsync_DeveRegenerarCodigoRetiradaQuandoOcorrerColisaoConcorrenteNoSaveChanges()
+    {
+        var categoria = new Categoria("Bebidas", "🥤", perecivelDiario: false, ordemExibicao: 1);
+        _db.Categorias.Add(categoria);
+        await _db.SaveChangesAsync();
+
+        var produto = new Produto("Suco", "300ml", "🧃", categoria.Id, 2.00m, 6.00m, 15, perecivel: false);
+        _db.Produtos.Add(produto);
+        await _db.SaveChangesAsync();
+
+        var collidingDb = new CollidingFirstSaveDbContext(_db);
+        var service = new PedidoService(
+            collidingDb,
+            new ThrowingWhatsAppGateway(),
+            Options.Create(new CantinaOperacaoOptions { NomeCantina = "Cantina Teste", UrlPublicaCardapio = "http://localhost" }),
+            NullLogger<PedidoService>.Instance);
+
+        var resultado = await service.RegistrarVendaBalcaoAsync(new RegistrarVendaBalcaoRequest(
+            NomeCliente: "Cliente Concorrente",
+            FormaPagamento: "DinheiroNoBalcao",
+            Itens: [new CriarItemPedidoRequest(produto.Id, 1)]));
+
+        Assert.Equal(2, collidingDb.SaveAttempts);
+        Assert.NotNull(collidingDb.FirstAttemptCode);
+        Assert.NotEqual(collidingDb.FirstAttemptCode, resultado.CodigoRetirada);
+    }
+
+    private sealed class CollidingFirstSaveDbContext(CantinaDbContext inner) : ICantinaDbContext
+    {
+        public int SaveAttempts { get; private set; }
+        public string? FirstAttemptCode { get; private set; }
+
+        public DbSet<Categoria> Categorias => inner.Categorias;
+        public DbSet<Produto> Produtos => inner.Produtos;
+        public DbSet<Pedido> Pedidos => inner.Pedidos;
+        public DbSet<ItemPedido> ItensPedido => inner.ItensPedido;
+        public DbSet<GrupoWhatsApp> GruposWhatsApp => inner.GruposWhatsApp;
+        public DbSet<Aluno> Alunos => inner.Alunos;
+        public DbSet<MovimentacaoEstoque> MovimentacoesEstoque => inner.MovimentacoesEstoque;
+        public DbSet<NotificacaoWhatsAppLog> NotificacoesWhatsApp => inner.NotificacoesWhatsApp;
+        public DbSet<FechamentoDiario> FechamentosDiarios => inner.FechamentosDiarios;
+
+        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            SaveAttempts++;
+            if (SaveAttempts == 1)
+            {
+                var trackedPedido = inner.ChangeTracker.Entries<Pedido>().First().Entity;
+                FirstAttemptCode = trackedPedido.CodigoRetirada;
+                throw new DbUpdateException("UNIQUE constraint failed: Pedidos.CodigoRetirada");
+            }
+
+            return inner.SaveChangesAsync(cancellationToken);
+        }
+    }
+
     private sealed class ThrowingWhatsAppGateway : IWhatsAppGateway
     {
         public string NomeModoAtivo => "FaultInjection";

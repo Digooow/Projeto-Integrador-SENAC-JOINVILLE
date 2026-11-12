@@ -81,11 +81,9 @@ public sealed class PedidoService : IPedidoService
             req.Observacoes,
             itensDominio);
 
-        await GarantirCodigoRetiradaUnicoAsync(pedido, ct);
-
         _db.Pedidos.Add(pedido);
         _db.MovimentacoesEstoque.AddRange(movimentacoes);
-        await _db.SaveChangesAsync(ct);
+        await SalvarPedidoComCodigoUnicoAsync(pedido, ct);
 
         string msgConfirmacao = WhatsAppMessageFormatter.FormatarConfirmacaoPedido(
             pedido,
@@ -178,11 +176,9 @@ public sealed class PedidoService : IPedidoService
             observacoes: "Venda rápida registrada no PDV Desktop",
             itensDominio);
 
-        await GarantirCodigoRetiradaUnicoAsync(pedido, ct);
-
         _db.Pedidos.Add(pedido);
         _db.MovimentacoesEstoque.AddRange(movimentacoes);
-        await _db.SaveChangesAsync(ct);
+        await SalvarPedidoComCodigoUnicoAsync(pedido, ct);
 
         return pedido.ToDto();
     }
@@ -351,6 +347,33 @@ public sealed class PedidoService : IPedidoService
         }
 
         return pedido.ToDto(linkWaMe);
+    }
+
+    private async Task SalvarPedidoComCodigoUnicoAsync(Pedido pedido, CancellationToken ct)
+    {
+        const int maxTentativas = 5;
+
+        for (int tentativa = 1; tentativa <= maxTentativas; tentativa++)
+        {
+            await GarantirCodigoRetiradaUnicoAsync(pedido, ct);
+
+            try
+            {
+                await _db.SaveChangesAsync(ct);
+                return;
+            }
+            catch (DbUpdateException ex) when (ex is not DbUpdateConcurrencyException && tentativa < maxTentativas)
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Colisão concorrente detectada ao persistir CodigoRetirada {CodigoRetirada} (tentativa {Tentativa}/{MaxTentativas}). Regenerando código.",
+                    pedido.CodigoRetirada,
+                    tentativa,
+                    maxTentativas);
+
+                pedido.RegenerarCodigoRetirada();
+            }
+        }
     }
 
     private async Task GarantirCodigoRetiradaUnicoAsync(Pedido pedido, CancellationToken ct)
