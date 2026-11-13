@@ -13,7 +13,7 @@ Plataforma completa em **.NET 10 (Clean Architecture)** para operação intelige
   <img src="https://img.shields.io/badge/WPF-Backoffice%20Desktop-0078D4?logo=windows&logoColor=white" alt="WPF Desktop" />
   <img src="https://img.shields.io/badge/EF%20Core%2010-SQLite%20%7C%20PostgreSQL-336791?logo=postgresql&logoColor=white" alt="EF Core 10" />
   <img src="https://img.shields.io/badge/WhatsApp-Evolution%20%7C%20Meta%20%7C%20wa.me-25D366?logo=whatsapp&logoColor=white" alt="WhatsApp" />
-  <img src="https://img.shields.io/badge/Testes-11%2F11%20xUnit-16A34A" alt="Testes xUnit" />
+  <img src="https://img.shields.io/badge/Testes-15%2F15%20xUnit-16A34A" alt="Testes xUnit" />
 </p>
 
 > ### 🌐 Acesso Rápido & Links da Aplicação
@@ -395,7 +395,7 @@ Configure as variáveis `WhatsApp__*` (veja `.env.example`):
                                                 │
                                                 ├── 1. GitHub Actions (CI)
                                                 │      • Compila toda a solução em Release
-                                                │      • Executa os 11 testes unitários e de integração
+                                                │      • Executa os 15 testes unitários e de integração
                                                 │
                                                 └── 2. Render.com (CD Automático)
                                                        • Detecta o novo commit na branch 'main'
